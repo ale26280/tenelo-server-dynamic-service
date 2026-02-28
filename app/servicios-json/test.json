@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "nombre": "Servicio Alpha",
+    "descripcion": "Descripción del servicio alpha",
+    "precio": 1500,
+    "disponible": true,
+    "categoria": "Premium",
+    "imagen": "https://picsum.photos/400/300?random=1"
+  },
+  {
+    "id": 2,
+    "nombre": "Servicio Beta",
+    "descripcion": "Descripción del servicio beta",
+    "precio": 2500,
+    "disponible": true,
+    "categoria": "Estándar",
+    "imagen": "https://picsum.photos/400/300?random=2"
+  },
+  {
+    "id": 3,
+    "nombre": "Servicio Gamma",
+    "descripcion": "Descripción del servicio gamma",
+    "precio": 3500,
+    "disponible": false,
+    "categoria": "Premium",
+    "imagen": "https://picsum.photos/400/300?random=3"
+  },
+  {
+    "id": 4,
+    "nombre": "Servicio Delta",
+    "descripcion": "Descripción del servicio delta",
+    "precio": 1800,
+    "disponible": true,
+    "categoria": "Básico",
+    "imagen": "https://picsum.photos/400/300?random=4"
+  }
+]

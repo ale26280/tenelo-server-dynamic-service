@@ -1,0 +1,365 @@
+[
+  {
+    "product": {
+      "id": 987654321,
+      "title": "Remera Algodón Premium - Minimal",
+      "vendor": "Mi Tienda Arg",
+      "product_type": "Indumentaria",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/remera_negra.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 112233,
+          "title": "Negra / Large",
+          "price": "25000.00",
+          "sku": "REM-NEG-L",
+          "inventory_quantity": 50
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 887766554,
+      "title": "Zapatillas Running Urban Style",
+      "vendor": "Urban Sneakers",
+      "product_type": "Calzado",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/zapatillas_running_blanco.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 223344,
+          "title": "Blanco / 42",
+          "price": "78000.00",
+          "sku": "ZAP-BLA-42",
+          "inventory_quantity": 25
+        },
+        {
+          "id": 223345,
+          "title": "Negro / 43",
+          "price": "78000.00",
+          "sku": "ZAP-NEG-43",
+          "inventory_quantity": 18
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 776655443,
+      "title": "Buzo Canguro Oversize - Basic",
+      "vendor": "Street Wear BA",
+      "product_type": "Indumentaria",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/buzo_canguro_gris.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 334455,
+          "title": "Gris / Medium",
+          "price": "42000.00",
+          "sku": "BUZ-GRI-M",
+          "inventory_quantity": 35
+        },
+        {
+          "id": 334456,
+          "title": "Negro / Large",
+          "price": "42000.00",
+          "sku": "BUZ-NEG-L",
+          "inventory_quantity": 40
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 665544332,
+      "title": "Mochila Notebook 15.6\" Impermeable",
+      "vendor": "Tech Bags",
+      "product_type": "Accesorios",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/mochila_notebook_negra.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 445566,
+          "title": "Negra / Única",
+          "price": "32000.00",
+          "sku": "MOCH-NEG-U",
+          "inventory_quantity": 60
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 554433221,
+      "title": "Campera Inflable Winter Pro",
+      "vendor": "Cold Wear",
+      "product_type": "Indumentaria",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/campera_azul.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 556677,
+          "title": "Azul Marino / Large",
+          "price": "125000.00",
+          "sku": "CAM-AZU-L",
+          "inventory_quantity": 15
+        },
+        {
+          "id": 556678,
+          "title": "Negro / Extra Large",
+          "price": "125000.00",
+          "sku": "CAM-NEG-XL",
+          "inventory_quantity": 12
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 443322110,
+      "title": "Pantalón Jean Slim Fit - Denim",
+      "vendor": "Denim Store",
+      "product_type": "Indumentaria",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/jean_azul.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 667788,
+          "title": "Azul / 32",
+          "price": "55000.00",
+          "sku": "JEAN-AZU-32",
+          "inventory_quantity": 28
+        },
+        {
+          "id": 667789,
+          "title": "Azul / 34",
+          "price": "55000.00",
+          "sku": "JEAN-AZU-34",
+          "inventory_quantity": 32
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 332211009,
+      "title": "Reloj Digital Deportivo - Sport Max",
+      "vendor": "Time Pieces",
+      "product_type": "Accesorios",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/reloj_deportivo_negro.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 778899,
+          "title": "Negro / Única",
+          "price": "48000.00",
+          "sku": "REL-NEG-U",
+          "inventory_quantity": 45
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 221100998,
+      "title": "Gorra Trucker - Urban Classic",
+      "vendor": "Cap Store",
+      "product_type": "Accesorios",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/gorra_negra.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 889900,
+          "title": "Negra / Ajustable",
+          "price": "18000.00",
+          "sku": "GORR-NEG-ADJ",
+          "inventory_quantity": 75
+        },
+        {
+          "id": 889901,
+          "title": "Blanca / Ajustable",
+          "price": "18000.00",
+          "sku": "GORR-BLA-ADJ",
+          "inventory_quantity": 65
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 110099887,
+      "title": "Medias Deportivas Pack x3",
+      "vendor": "Sport Socks",
+      "product_type": "Indumentaria",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/medias_blancas.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 990011,
+          "title": "Blancas / 39-42",
+          "price": "12000.00",
+          "sku": "MED-BLA-3942",
+          "inventory_quantity": 100
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 998877665,
+      "title": "Billetera de Cuero Minimalista",
+      "vendor": "Leather Goods",
+      "product_type": "Accesorios",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/billetera_marron.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 101122,
+          "title": "Marrón / Única",
+          "price": "28000.00",
+          "sku": "BILL-MAR-U",
+          "inventory_quantity": 55
+        },
+        {
+          "id": 101123,
+          "title": "Negro / Única",
+          "price": "28000.00",
+          "sku": "BILL-NEG-U",
+          "inventory_quantity": 48
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 887766554,
+      "title": "Cinturón de Cuero Reversible",
+      "vendor": "Leather Goods",
+      "product_type": "Accesorios",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/cinturon_negro.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 212233,
+          "title": "Negro/Marrón / 95cm",
+          "price": "35000.00",
+          "sku": "CINT-NM-95",
+          "inventory_quantity": 30
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 776655443,
+      "title": "Bufanda de Lana Tejida",
+      "vendor": "Winter Accessories",
+      "product_type": "Accesorios",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/bufanda_gris.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 323344,
+          "title": "Gris / Única",
+          "price": "22000.00",
+          "sku": "BUF-GRI-U",
+          "inventory_quantity": 40
+        },
+        {
+          "id": 323345,
+          "title": "Bordo / Única",
+          "price": "22000.00",
+          "sku": "BUF-BOR-U",
+          "inventory_quantity": 35
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 665544332,
+      "title": "Anteojos de Sol Polarizados - UV400",
+      "vendor": "Sunglasses Co",
+      "product_type": "Accesorios",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/anteojos_negros.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 434455,
+          "title": "Negro / Única",
+          "price": "45000.00",
+          "sku": "ANT-NEG-U",
+          "inventory_quantity": 22
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 554433221,
+      "title": "Chaleco Acolchado Reversible",
+      "vendor": "Cold Wear",
+      "product_type": "Indumentaria",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/chaleco_negro.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 545566,
+          "title": "Negro / Medium",
+          "price": "68000.00",
+          "sku": "CHAL-NEG-M",
+          "inventory_quantity": 20
+        },
+        {
+          "id": 545567,
+          "title": "Azul / Large",
+          "price": "68000.00",
+          "sku": "CHAL-AZU-L",
+          "inventory_quantity": 18
+        }
+      ]
+    }
+  },
+  {
+    "product": {
+      "id": 443322110,
+      "title": "Riñonera Deportiva Urban Style",
+      "vendor": "Sport Bags",
+      "product_type": "Accesorios",
+      "images": [
+        { "src": "https://cdn.shopify.com/s/files/rinonera_negra.jpg" }
+      ],
+      "variants": [
+        {
+          "id": 656677,
+          "title": "Negra / Única",
+          "price": "15000.00",
+          "sku": "RIN-NEG-U",
+          "inventory_quantity": 80
+        },
+        {
+          "id": 656678,
+          "title": "Gris / Única",
+          "price": "15000.00",
+          "sku": "RIN-GRI-U",
+          "inventory_quantity": 70
+        }
+      ]
+    }
+  }
+]

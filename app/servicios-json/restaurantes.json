@@ -1,0 +1,98 @@
+[
+  {
+    "id": 501,
+    "nombre": "Pizza Mozzarella",
+    "categoria": "Pizzas",
+    "descripcion": "Pizza con mozzarella de búfala, tomate y albahaca fresca",
+    "precio": 8500,
+    "tiempo_preparacion": 20,
+    "calorias": 850,
+    "imagen": "https://picsum.photos/500/350?random=50",
+    "destacado": true,
+    "disponible": true
+  },
+  {
+    "id": 502,
+    "nombre": "Hamburguesa Bacon",
+    "categoria": "Hamburguesas",
+    "descripcion": "Medallón de 200g, bacon ahumado, cheddar, cebolla caramelizada",
+    "precio": 9800,
+    "tiempo_preparacion": 15,
+    "calorias": 1200,
+    "imagen": "https://picsum.photos/500/350?random=51",
+    "destacado": true,
+    "disponible": true
+  },
+  {
+    "id": 503,
+    "nombre": "Ensalada Caesar",
+    "categoria": "Ensaladas",
+    "descripcion": "Lechuga romana, pollo grillado, crutones, parmesano, salsa Caesar",
+    "precio": 7500,
+    "tiempo_preparacion": 10,
+    "calorias": 450,
+    "imagen": "https://picsum.photos/500/350?random=52",
+    "destacado": false,
+    "disponible": true
+  },
+  {
+    "id": 504,
+    "nombre": "Milanesa Napolitana",
+    "categoria": "Platos principales",
+    "descripcion": "Milanesa de ternera con jamón, tomate y queso gratinado",
+    "precio": 11500,
+    "tiempo_preparacion": 25,
+    "calorias": 1100,
+    "imagen": "https://picsum.photos/500/350?random=53",
+    "destacado": true,
+    "disponible": true
+  },
+  {
+    "id": 505,
+    "nombre": "Sushi Variado (20 piezas)",
+    "categoria": "Sushi",
+    "descripcion": "Combinación de rolls: California, Philadelphia, Sake",
+    "precio": 13500,
+    "tiempo_preparacion": 30,
+    "calorias": 650,
+    "imagen": "https://picsum.photos/500/350?random=54",
+    "destacado": true,
+    "disponible": true
+  },
+  {
+    "id": 506,
+    "nombre": "Pasta Bolognesa",
+    "categoria": "Pastas",
+    "descripcion": "Spaghetti con salsa boloñesa casera y parmesano",
+    "precio": 8900,
+    "tiempo_preparacion": 18,
+    "calorias": 750,
+    "imagen": "https://picsum.photos/500/350?random=55",
+    "destacado": false,
+    "disponible": true
+  },
+  {
+    "id": 507,
+    "nombre": "Taco Vegano",
+    "categoria": "Mexicana",
+    "descripcion": "Tacos con proteína vegetal, guacamole, pico de gallo",
+    "precio": 7800,
+    "tiempo_preparacion": 12,
+    "calorias": 380,
+    "imagen": "https://picsum.photos/500/350?random=56",
+    "destacado": false,
+    "disponible": true
+  },
+  {
+    "id": 508,
+    "nombre": "Tiramisú",
+    "categoria": "Postres",
+    "descripcion": "Clásico postre italiano con mascarpone y café",
+    "precio": 4500,
+    "tiempo_preparacion": 5,
+    "calorias": 420,
+    "imagen": "https://picsum.photos/500/350?random=57",
+    "destacado": true,
+    "disponible": true
+  }
+]

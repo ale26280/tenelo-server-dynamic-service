@@ -1,0 +1,286 @@
+[
+  {
+    "id": "MLA123456789",
+    "site_id": "MLA",
+    "title": "Termotanque Eléctrico Señorial Zafiro 65L",
+    "price": 285000.00,
+    "currency_id": "ARS",
+    "available_quantity": 15,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_8765-MLA123-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "Señorial" },
+      { "id": "CAPACITY", "name": "Capacidad", "value_name": "65 L" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA987654321",
+    "site_id": "MLA",
+    "title": "Notebook HP 15 Intel Core i5 8GB RAM 512GB SSD",
+    "price": 650000.00,
+    "currency_id": "ARS",
+    "available_quantity": 23,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_9876-MLA456-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "HP" },
+      { "id": "RAM", "name": "Memoria RAM", "value_name": "8 GB" },
+      { "id": "STORAGE", "name": "Almacenamiento", "value_name": "512 GB SSD" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA555666777",
+    "site_id": "MLA",
+    "title": "Aire Acondicionado Split BGH 3500W Frío/Calor",
+    "price": 520000.00,
+    "currency_id": "ARS",
+    "available_quantity": 12,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_5556-MLA789-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "BGH" },
+      { "id": "POWER", "name": "Potencia", "value_name": "3500W" },
+      { "id": "TYPE", "name": "Tipo", "value_name": "Frío/Calor" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA111222333",
+    "site_id": "MLA",
+    "title": "Smart TV Samsung 55\" 4K UHD Crystal",
+    "price": 780000.00,
+    "currency_id": "ARS",
+    "available_quantity": 8,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_1112-MLA222-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "Samsung" },
+      { "id": "SCREEN_SIZE", "name": "Tamaño de pantalla", "value_name": "55 pulgadas" },
+      { "id": "RESOLUTION", "name": "Resolución", "value_name": "4K UHD" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA444555666",
+    "site_id": "MLA",
+    "title": "Heladera Whirlpool No Frost 351L WRM45",
+    "price": 950000.00,
+    "currency_id": "ARS",
+    "available_quantity": 6,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_4445-MLA555-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "Whirlpool" },
+      { "id": "CAPACITY", "name": "Capacidad", "value_name": "351 L" },
+      { "id": "COOLING_TYPE", "name": "Sistema de enfriamiento", "value_name": "No Frost" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA777888999",
+    "site_id": "MLA",
+    "title": "Celular Motorola G84 5G 256GB 8GB RAM",
+    "price": 420000.00,
+    "currency_id": "ARS",
+    "available_quantity": 35,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_7778-MLA888-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "Motorola" },
+      { "id": "STORAGE", "name": "Almacenamiento", "value_name": "256 GB" },
+      { "id": "RAM", "name": "Memoria RAM", "value_name": "8 GB" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA321654987",
+    "site_id": "MLA",
+    "title": "Lavarropas Automático Drean 8kg Next 8.12",
+    "price": 680000.00,
+    "currency_id": "ARS",
+    "available_quantity": 10,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_3216-MLA549-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "Drean" },
+      { "id": "CAPACITY", "name": "Capacidad", "value_name": "8 kg" },
+      { "id": "TYPE", "name": "Tipo", "value_name": "Automático" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA159753486",
+    "site_id": "MLA",
+    "title": "Auriculares Bluetooth JBL Tune 510BT",
+    "price": 55000.00,
+    "currency_id": "ARS",
+    "available_quantity": 50,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_1597-MLA534-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "JBL" },
+      { "id": "CONNECTIVITY", "name": "Conectividad", "value_name": "Bluetooth" },
+      { "id": "TYPE", "name": "Tipo", "value_name": "On-ear" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA852963741",
+    "site_id": "MLA",
+    "title": "Microondas Samsung 23L MS23K3513",
+    "price": 145000.00,
+    "currency_id": "ARS",
+    "available_quantity": 18,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_8529-MLA637-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "Samsung" },
+      { "id": "CAPACITY", "name": "Capacidad", "value_name": "23 L" },
+      { "id": "POWER", "name": "Potencia", "value_name": "800W" }
+    ],
+    "shipping": {
+      "free_shipping": false,
+      "mode": "not_specified"
+    }
+  },
+  {
+    "id": "MLA753951486",
+    "site_id": "MLA",
+    "title": "Licuadora Philips HR2222/00 700W",
+    "price": 82000.00,
+    "currency_id": "ARS",
+    "available_quantity": 28,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_7539-MLA514-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "Philips" },
+      { "id": "POWER", "name": "Potencia", "value_name": "700W" },
+      { "id": "CAPACITY", "name": "Capacidad", "value_name": "2 L" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA963852741",
+    "site_id": "MLA",
+    "title": "Cafetera Express Oster Prima Latte BVSTEM6701",
+    "price": 195000.00,
+    "currency_id": "ARS",
+    "available_quantity": 14,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_9638-MLA527-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "Oster" },
+      { "id": "TYPE", "name": "Tipo", "value_name": "Express" },
+      { "id": "PRESSURE", "name": "Presión", "value_name": "15 bar" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA147258369",
+    "site_id": "MLA",
+    "title": "Teclado Mecánico Redragon Kumara K552 RGB",
+    "price": 68000.00,
+    "currency_id": "ARS",
+    "available_quantity": 42,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_1472-MLA583-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "Redragon" },
+      { "id": "TYPE", "name": "Tipo", "value_name": "Mecánico" },
+      { "id": "CONNECTIVITY", "name": "Conectividad", "value_name": "USB" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA258369147",
+    "site_id": "MLA",
+    "title": "Silla Gamer Aerocool AC120 Air RGB",
+    "price": 320000.00,
+    "currency_id": "ARS",
+    "available_quantity": 9,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_2583-MLA691-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "Aerocool" },
+      { "id": "TYPE", "name": "Tipo", "value_name": "Gamer" },
+      { "id": "MATERIAL", "name": "Material", "value_name": "Cuero sintético" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA369147258",
+    "site_id": "MLA",
+    "title": "Parlante Bluetooth JBL Flip 6 Portátil",
+    "price": 175000.00,
+    "currency_id": "ARS",
+    "available_quantity": 31,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_3691-MLA472-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "JBL" },
+      { "id": "CONNECTIVITY", "name": "Conectividad", "value_name": "Bluetooth" },
+      { "id": "BATTERY_LIFE", "name": "Autonomía", "value_name": "12 horas" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  },
+  {
+    "id": "MLA741852963",
+    "site_id": "MLA",
+    "title": "Colchón Piero Espuma Alta Densidad 190x140",
+    "price": 380000.00,
+    "currency_id": "ARS",
+    "available_quantity": 7,
+    "condition": "new",
+    "thumbnail": "http://http2.mlstatic.com/D_7418-MLA529-O.jpg",
+    "attributes": [
+      { "id": "BRAND", "name": "Marca", "value_name": "Piero" },
+      { "id": "SIZE", "name": "Tamaño", "value_name": "190x140 cm" },
+      { "id": "MATERIAL", "name": "Material", "value_name": "Espuma alta densidad" }
+    ],
+    "shipping": {
+      "free_shipping": true,
+      "mode": "me2"
+    }
+  }
+]

@@ -1,0 +1,60 @@
+services:
+  prometheus-init:
+    image: alpine:3.18
+    container_name: monitor_prometheus_init
+    restart: "no"
+    env_file:
+      - ./.env
+    volumes:
+      - ./prometheus.yml.tpl:/tpl/prometheus.yml.tpl:ro
+      - prometheus-config:/output
+      - ./render-prometheus.sh:/scripts/render-prometheus.sh:ro
+    # Allow resolving host.docker.internal from the init container (Linux host-gateway)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: ["/bin/sh","/scripts/render-prometheus.sh"]
+    # Run once then exit; Prometheus will depend on the rendered file
+
+  prometheus:
+    image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.49.0}
+    container_name: monitor_prometheus
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    # Map Prometheus default 9090 to host 30016 to avoid conflicts (host ports 30015-30016 used by monitoring)
+    ports:
+      - "30016:9090"
+    volumes:
+      - prometheus-config:/etc/prometheus:ro
+    depends_on:
+      - prometheus-init
+    # Prometheus image already has the prometheus binary as entrypoint; pass only args here
+    # Pass only the Prometheus args (the image's entrypoint is the Prometheus binary)
+    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    # On Linux, allow resolving host.docker.internal to the host gateway
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    # Use a Grafana image by default (override with GRAFANA_IMAGE in .env)
+    # The previously chosen tag may not exist on the registry; default to 'latest' to avoid pull errors.
+    image: ${GRAFANA_IMAGE:-grafana/grafana:latest}
+    container_name: monitor_grafana
+    restart: unless-stopped
+    user: "472"
+    # Map Grafana default 3000 to host 30015 to avoid collisions
+    ports:
+      - "30015:3000"
+    # allow overriding via .env if needed
+    env_file:
+      - ./.env
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+volumes:
+  grafana-data:
+  prometheus-config:

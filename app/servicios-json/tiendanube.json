@@ -1,0 +1,236 @@
+[
+  {
+    "id": 554433,
+    "name": { "es": "Mate de Acero Térmico" },
+    "description": { "es": "Mate de doble capa de acero inoxidable, mantiene la temperatura." },
+    "handle": "mate-acero-termico-negro",
+    "variants": [
+      {
+        "price": "18500.00",
+        "stock": 20,
+        "barcode": "779123456789",
+        "values": [ { "es": "Negro" } ]
+      }
+    ]
+  },
+  {
+    "id": 554434,
+    "name": { "es": "Set Matero Completo con Bolso" },
+    "description": { "es": "Incluye mate, termo 1L, bombilla y yerbera en bolso de cuero ecológico." },
+    "handle": "set-matero-completo-bolso",
+    "variants": [
+      {
+        "price": "45000.00",
+        "stock": 15,
+        "barcode": "779123456790",
+        "values": [ { "es": "Marrón" } ]
+      },
+      {
+        "price": "45000.00",
+        "stock": 12,
+        "barcode": "779123456791",
+        "values": [ { "es": "Negro" } ]
+      }
+    ]
+  },
+  {
+    "id": 554435,
+    "name": { "es": "Termo Stanley Classic 1.4L" },
+    "description": { "es": "Termo de acero inoxidable, mantiene calor 24hs y frío 24hs." },
+    "handle": "termo-stanley-classic-verde",
+    "variants": [
+      {
+        "price": "65000.00",
+        "stock": 30,
+        "barcode": "779123456792",
+        "values": [ { "es": "Verde" } ]
+      }
+    ]
+  },
+  {
+    "id": 554436,
+    "name": { "es": "Bombilla de Alpaca Cincelada" },
+    "description": { "es": "Bombilla artesanal de alpaca con diseño cincelado y filtro desmontable." },
+    "handle": "bombilla-alpaca-cincelada",
+    "variants": [
+      {
+        "price": "12000.00",
+        "stock": 50,
+        "barcode": "779123456793",
+        "values": [ { "es": "Plateada" } ]
+      }
+    ]
+  },
+  {
+    "id": 554437,
+    "name": { "es": "Yerbera de Madera con Tapa" },
+    "description": { "es": "Yerbera de madera de pino con tapa hermética, capacidad 500g." },
+    "handle": "yerbera-madera-tapa",
+    "variants": [
+      {
+        "price": "8500.00",
+        "stock": 40,
+        "barcode": "779123456794",
+        "values": [ { "es": "Natural" } ]
+      }
+    ]
+  },
+  {
+    "id": 554438,
+    "name": { "es": "Mate Calabaza Tallado Artesanal" },
+    "description": { "es": "Mate de calabaza con tallado tradicional argentino, incluye virola de alpaca." },
+    "handle": "mate-calabaza-tallado",
+    "variants": [
+      {
+        "price": "22000.00",
+        "stock": 25,
+        "barcode": "779123456795",
+        "values": [ { "es": "Natural" } ]
+      }
+    ]
+  },
+  {
+    "id": 554439,
+    "name": { "es": "Azucarera de Cerámica con Cuchara" },
+    "description": { "es": "Azucarera de cerámica artesanal con tapa y cuchara de madera incluida." },
+    "handle": "azucarera-ceramica-cuchara",
+    "variants": [
+      {
+        "price": "6500.00",
+        "stock": 35,
+        "barcode": "779123456796",
+        "values": [ { "es": "Blanca" } ]
+      },
+      {
+        "price": "6500.00",
+        "stock": 30,
+        "barcode": "779123456797",
+        "values": [ { "es": "Celeste" } ]
+      }
+    ]
+  },
+  {
+    "id": 554440,
+    "name": { "es": "Porta Mate de Cuero Trenzado" },
+    "description": { "es": "Porta mate de cuero vacuno trenzado a mano, protege de golpes." },
+    "handle": "porta-mate-cuero-trenzado",
+    "variants": [
+      {
+        "price": "15000.00",
+        "stock": 28,
+        "barcode": "779123456798",
+        "values": [ { "es": "Marrón" } ]
+      }
+    ]
+  },
+  {
+    "id": 554441,
+    "name": { "es": "Mate de Vidrio Doble Pared" },
+    "description": { "es": "Mate de vidrio borosilicato con doble pared térmica, diseño moderno." },
+    "handle": "mate-vidrio-doble-pared",
+    "variants": [
+      {
+        "price": "28000.00",
+        "stock": 18,
+        "barcode": "779123456799",
+        "values": [ { "es": "Transparente" } ]
+      }
+    ]
+  },
+  {
+    "id": 554442,
+    "name": { "es": "Yerba Mate Orgánica 1kg" },
+    "description": { "es": "Yerba mate orgánica sin palo, cultivo sustentable argentino." },
+    "handle": "yerba-mate-organica-1kg",
+    "variants": [
+      {
+        "price": "9500.00",
+        "stock": 100,
+        "barcode": "779123456800",
+        "values": [ { "es": "1kg" } ]
+      }
+    ]
+  },
+  {
+    "id": 554443,
+    "name": { "es": "Pico Cebador de Silicona" },
+    "description": { "es": "Pico cebador apto termo, evita derrames y mantiene temperatura." },
+    "handle": "pico-cebador-silicona",
+    "variants": [
+      {
+        "price": "4500.00",
+        "stock": 60,
+        "barcode": "779123456801",
+        "values": [ { "es": "Negro" } ]
+      },
+      {
+        "price": "4500.00",
+        "stock": 55,
+        "barcode": "779123456802",
+        "values": [ { "es": "Rojo" } ]
+      }
+    ]
+  },
+  {
+    "id": 554444,
+    "name": { "es": "Estuche Térmico para Mate" },
+    "description": { "es": "Estuche térmico acolchado con cierre, protege y mantiene temperatura." },
+    "handle": "estuche-termico-mate",
+    "variants": [
+      {
+        "price": "11000.00",
+        "stock": 42,
+        "barcode": "779123456803",
+        "values": [ { "es": "Azul" } ]
+      }
+    ]
+  },
+  {
+    "id": 554445,
+    "name": { "es": "Limpiador de Bombilla con Cepillo" },
+    "description": { "es": "Kit limpieza para bombillas, incluye cepillo flexible y pastillas limpiadoras." },
+    "handle": "limpiador-bombilla-cepillo",
+    "variants": [
+      {
+        "price": "3500.00",
+        "stock": 70,
+        "barcode": "779123456804",
+        "values": [ { "es": "Único" } ]
+      }
+    ]
+  },
+  {
+    "id": 554446,
+    "name": { "es": "Mate de Algarrobo Tallado" },
+    "description": { "es": "Mate artesanal de madera de algarrobo con virola de alpaca y tallados." },
+    "handle": "mate-algarrobo-tallado",
+    "variants": [
+      {
+        "price": "32000.00",
+        "stock": 16,
+        "barcode": "779123456805",
+        "values": [ { "es": "Natural" } ]
+      }
+    ]
+  },
+  {
+    "id": 554447,
+    "name": { "es": "Bolso Matero Impermeable" },
+    "description": { "es": "Bolso térmico impermeable con divisiones para mate, termo y accesorios." },
+    "handle": "bolso-matero-impermeable",
+    "variants": [
+      {
+        "price": "38000.00",
+        "stock": 22,
+        "barcode": "779123456806",
+        "values": [ { "es": "Negro" } ]
+      },
+      {
+        "price": "38000.00",
+        "stock": 18,
+        "barcode": "779123456807",
+        "values": [ { "es": "Gris" } ]
+      }
+    ]
+  }
+]

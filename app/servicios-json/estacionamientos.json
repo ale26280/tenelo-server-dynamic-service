@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "vehiculo": "AUTOS",
+    "hora": 300,
+    "fraccion": 25,
+    "estadia": 1500
+  },
+  {
+    "id": 2,
+    "vehiculo": "PICK UP",
+    "hora": 400,
+    "fraccion": 30,
+    "estadia": 1800
+  },
+  {
+    "id": 3,
+    "vehiculo": "MOTOS",
+    "hora": 180,
+    "fraccion": 15,
+    "estadia": 800
+  },
+  {
+    "id": 4,
+    "vehiculo": "BICICLETAS",
+    "hora": 120,
+    "fraccion": 10,
+    "estadia": 600
+  }
+]

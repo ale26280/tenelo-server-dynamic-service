@@ -1,0 +1,55 @@
+- name: Ejecutar tareas locales
+  hosts: localhost
+  tasks:
+    - name: Verificar que el repositorio local está actualizado
+      shell: git checkout gb && git pull origin gb && git checkout prd && git merge gb && git push origin prd
+      args:
+        chdir: /home/ub/Documentos/development/github/guionbajo/repos/appserver
+      register: local_git_pull_result
+      changed_when: "'Already up to date.' not in local_git_pull_result.stdout"
+
+- name: Actualizar aplicación remota
+  hosts: remote_server
+  tasks:
+    - name: Verificar que estamos en la rama prd
+      shell: git checkout prd
+      args:
+        chdir: /home/guionbajo/repos/appserver
+      register: git_checkout_result
+      changed_when: "'Switched to branch' in git_checkout_result.stdout or 'Already on' in git_checkout_result.stdout"
+
+    - name: Hacer pull del repositorio en la rama prd
+      shell: git pull origin prd
+      args:
+        chdir: /home/guionbajo/repos/appserver
+      register: git_pull_result
+      ignore_errors: false
+      changed_when: "'Already up to date.' not in git_pull_result.stdout"
+
+    - name: Instalar dependencias con npm
+      shell: |
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        npm install
+      args:
+        chdir: /home/guionbajo/repos/appserver
+      register: npm_install_result
+      changed_when: "'added' in npm_install_result.stdout or 'updated' in npm_install_result.stdout"
+
+    - name: Ejecutar npm audit fix
+      shell: |
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        npm audit fix
+      args:
+        chdir: /home/guionbajo/repos/appserver
+      register: npm_audit_result
+      changed_when: "'fixed' in npm_audit_result.stdout"
+
+    - name: Reiniciar servicio con PM2
+      shell: |
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        pm2 restart app_server
+      register: pm2_restart_result
+      changed_when: "'online' in pm2_restart_result.stdout or 'restarted' in pm2_restart_result.stdout"

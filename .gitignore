@@ -1,0 +1,24 @@
+node_modules
+uploads
+
+# Variables de entorno (NUNCA commitear)
+.env
+.env.local
+.env.*.local
+
+# Certificados AFIP (NUNCA commitear)
+certs/*.crt
+certs/*.key
+certs/*.pem
+certs/*.p12
+certs/*.csr
+certs_nuevos/
+
+# Logs de facturación
+*.log
+/var/log/facturacion_cron.log
+
+# Archivos temporales
+*.tmp
+*.temp
+.DS_Store
