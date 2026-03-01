@@ -19,6 +19,58 @@ const pendingRequests = new Map();
 // Configuración del caché (30 minutos)
 const CACHE_DURATION_MS = 30 * 60 * 1000; // 30 minutos
 
+// Configuración de providers de clima (en orden de prioridad)
+// Para agregar API keys, usar variables de entorno: WEATHERAPI_KEY, OPENWEATHERMAP_KEY
+// Priority 1 = Provider principal (se intenta primero)
+const WEATHER_PROVIDERS = {
+  weatherapi: {
+    name: 'WeatherAPI',
+    enabled: !!process.env.WEATHERAPI_KEY || true, // Habilitado siempre, requiere API key
+    priority: 1, // 🌟 PROVIDER PRINCIPAL
+    requiresApiKey: true,
+    apiKey: process.env.WEATHERAPI_KEY,
+    info: '100K llamadas/mes gratis - https://www.weatherapi.com/signup.aspx'
+  },
+  openmeteo: {
+    name: 'Open-Meteo',
+    enabled: true, // Siempre habilitado como fallback
+    priority: 2, // Fallback (sin API key, gratis ilimitado)
+    requiresApiKey: false,
+    apiKey: null,
+    info: 'Gratis ilimitado - No requiere API key'
+  },
+  openweathermap: {
+    name: 'OpenWeatherMap',
+    enabled: !!process.env.OPENWEATHERMAP_KEY,
+    priority: 3, // Tercer opción (si está configurado)
+    requiresApiKey: true,
+    apiKey: process.env.OPENWEATHERMAP_KEY,
+    info: '1000 llamadas/día gratis - https://openweathermap.org/api'
+  },
+};
+
+// Obtener providers habilitados ordenados por prioridad
+function getEnabledProviders() {
+  return Object.entries(WEATHER_PROVIDERS)
+    .filter(([_, config]) => config.enabled)
+    .sort((a, b) => a[1].priority - b[1].priority)
+    .map(([key, _]) => key);
+}
+
+// Log inicial: Mostrar providers habilitados al cargar el módulo
+(() => {
+  const enabled = getEnabledProviders();
+  console.log('🌤️ [CLIMA] Providers de clima habilitados:');
+  enabled.forEach((key, index) => {
+    const config = WEATHER_PROVIDERS[key];
+    const status = config.requiresApiKey && !config.apiKey ? '⚠️ (Sin API key)' : '✅';
+    console.log(`  ${index + 1}. ${status} ${config.name} - ${config.info ||'Sin info'}`);
+  });
+  if (enabled.length === 0) {
+    console.warn('⚠️ [CLIMA] ADVERTENCIA: No hay providers habilitados');
+  }
+})();
+
 // Helper: stringify/preview large objects safely for logs
 function preview(obj, maxChars = 2000) {
   try {
@@ -43,6 +95,12 @@ async function getClima(req, res, next) {
 
     const { pais, localidad } = req.body;
     console.log("🌤️ [CLIMA] Parámetros recibidos:", { pais, localidad });
+
+    // Obtener provider preferido (opcional, si no se especifica usa fallback automático)
+    const preferredProvider = req.body.provider || req.query.provider || null;
+    if (preferredProvider) {
+      console.log("🌤️ [CLIMA] Provider solicitado:", preferredProvider);
+    }
 
     // Validar parámetros requeridos
     if (!pais || !localidad) {
@@ -112,6 +170,7 @@ async function getClima(req, res, next) {
           typeof cachedData.humedad === "undefined" ? null : cachedData.humedad,
         ubicacion: cachedData.ubicacion,
         timestamp: cachedData.updatedAt,
+        provider: cachedData.provider || 'unknown', // Provider que se usó originalmente
         fromCache: true,
         cacheEnabled: useCache,
         total: 1,
@@ -141,6 +200,7 @@ async function getClima(req, res, next) {
           humedad: sharedResult.humedad,
           ubicacion: sharedResult.ubicacion,
           timestamp: sharedResult.timestamp,
+          provider: sharedResult.provider || 'unknown',
           fromCache: true,
           fromSharedRequest: true, // Indica que vino de una solicitud compartida
           cacheEnabled: useCache,
@@ -164,7 +224,7 @@ async function getClima(req, res, next) {
     // Crear promesa para compartir con requests concurrentes
     const fetchPromise = (async () => {
       try {
-        return await fetchWeatherData(pais, localidad, locationKey);
+        return await fetchWeatherData(pais, localidad, locationKey, preferredProvider);
       } finally {
         // Limpiar el lock después de completar (éxito o error)
         pendingRequests.delete(locationKey);
@@ -197,6 +257,7 @@ async function getClima(req, res, next) {
           temperatura: weatherResult.temperatura,
           humedad: weatherResult.humedad,
           weatherData: weatherResult.weatherData,
+          provider: weatherResult.provider, // Guardar qué provider se usó
           updatedAt: saveTimestamp,
           createdAt: saveTimestamp,
         };
@@ -225,6 +286,7 @@ async function getClima(req, res, next) {
         humedad: weatherResult.humedad,
         ubicacion: weatherResult.ubicacion,
         timestamp: weatherResult.timestamp, // Timestamp de cuando se obtuvieron los datos
+        provider: weatherResult.provider, // Qué provider se usó
         fromCache: false,
         cacheEnabled: useCache,
         total: 1,
@@ -255,8 +317,42 @@ async function getClima(req, res, next) {
         return res.json(response);
       }
 
+      // FALLBACK FINAL: Si todos los providers fallaron, intentar usar cache expirado
+      console.log(
+        "🔄 [CLIMA DEBUG] Todos los providers fallaron, buscando cache expirado como fallback...",
+      );
+      
+      const expiredCacheData = await collection.findOne({
+        locationKey: locationKey,
+      });
+
+      if (expiredCacheData) {
+        const cacheAge = Math.round((nowUTC - new Date(expiredCacheData.updatedAt)) / 1000 / 60);
+        console.log(
+          `⚠️ [CLIMA DEBUG] Usando cache expirado (${cacheAge} minutos de antigüedad)`,
+        );
+
+        response.data = {
+          temperatura: expiredCacheData.temperatura,
+          humedad: typeof expiredCacheData.humedad === "undefined" ? null : expiredCacheData.humedad,
+          ubicacion: expiredCacheData.ubicacion,
+          timestamp: expiredCacheData.updatedAt,
+          provider: `${expiredCacheData.provider || 'unknown'} (cache expirado)`,
+          fromCache: true,
+          cacheExpired: true,
+          cacheAgeMinutes: cacheAge,
+          cacheEnabled: useCache,
+          total: 1,
+        };
+        response.message = `⚠️ Datos del cache expirado (${cacheAge} min) - Todos los providers fallaron`;
+        
+        return res.json(response);
+      }
+
+      // Si no hay cache disponible, devolver error
+      console.error("❌ [CLIMA DEBUG] No hay cache disponible como fallback");
       response.status = 500;
-      response.message = "Error al consultar el servicio de clima externo";
+      response.message = "Error al consultar el servicio de clima externo y no hay cache disponible";
       response.error = fetchError.message;
       return res.status(500).json(response);
     }
@@ -273,8 +369,78 @@ async function getClima(req, res, next) {
 /**
  * Función auxiliar para consultar las APIs de clima
  * Extrae la lógica de geocoding y consulta meteorológica
+ * Implementa fallback automático entre múltiples providers
+ * 
+ * @param {string} pais - País
+ * @param {string} localidad - Ciudad/localidad
+ * @param {string} locationKey - Clave única de ubicación
+ * @param {string|null} preferredProvider - Provider preferido (opcional)
  */
-async function fetchWeatherData(pais, localidad, locationKey) {
+async function fetchWeatherData(pais, localidad, locationKey, preferredProvider = null) {
+  const enabledProviders = getEnabledProviders();
+  
+  // Si se especifica un provider preferido y está habilitado, intentar primero con ese
+  let providersToTry = [...enabledProviders];
+  if (preferredProvider && WEATHER_PROVIDERS[preferredProvider]?.enabled) {
+    providersToTry = [
+      preferredProvider,
+      ...enabledProviders.filter(p => p !== preferredProvider)
+    ];
+  }
+
+  console.log(`🌐 [CLIMA] Providers disponibles para intentar:`, providersToTry);
+
+  let lastError = null;
+
+  // Intentar con cada provider en orden
+  for (const provider of providersToTry) {
+    try {
+      console.log(`🔄 [CLIMA] Intentando con provider: ${WEATHER_PROVIDERS[provider].name}`);
+      
+      let result;
+      switch (provider) {
+        case 'openmeteo':
+          result = await fetchFromOpenMeteo(pais, localidad);
+          break;
+        case 'weatherapi':
+          result = await fetchFromWeatherAPI(pais, localidad);
+          break;
+        case 'openweathermap':
+          result = await fetchFromOpenWeatherMap(pais, localidad);
+          break;
+        default:
+          console.log(`⚠️ [CLIMA] Provider desconocido: ${provider}`);
+          continue;
+      }
+
+      // Si llegamos aquí, el provider funcionó
+      console.log(`✅ [CLIMA] Datos obtenidos exitosamente de ${WEATHER_PROVIDERS[provider].name}`);
+      result.provider = provider; // Agregar info del provider usado
+      return result;
+
+    } catch (error) {
+      console.log(`❌ [CLIMA] Error con ${WEATHER_PROVIDERS[provider].name}:`, error.message);
+      lastError = error;
+      
+      // Si es un error de "no encontrado" o "múltiples ubicaciones", no intentar con otros providers
+      if (error.isNotFound || error.isMultipleLocations) {
+        throw error;
+      }
+      
+      // Continuar con el siguiente provider
+      continue;
+    }
+  }
+
+  // Si llegamos aquí, ningún provider funcionó
+  console.error(`❌ [CLIMA] Todos los providers fallaron`);
+  throw lastError || new Error('No se pudo obtener datos del clima de ningún provider');
+}
+
+/**
+ * Adaptador para Open-Meteo (gratis, sin API key)
+ */
+async function fetchFromOpenMeteo(pais, localidad) {
   // Buscar coordenadas usando la API de geocoding con múltiples estrategias
     const searchQueries = [
       `${localidad}, ${pais}`, // Estrategia principal: "Chubut, Argentina"
@@ -400,6 +566,137 @@ async function fetchWeatherData(pais, localidad, locationKey) {
     },
     timestamp: new Date(), // Momento en que se obtuvieron los datos de la API
   };
+}
+
+/**
+ * Adaptador para WeatherAPI (gratis, requiere API key)
+ * https://www.weatherapi.com/
+ * 1M llamadas/mes gratis
+ */
+async function fetchFromWeatherAPI(pais, localidad) {
+  const apiKey = WEATHER_PROVIDERS.weatherapi.apiKey;
+  
+  if (!apiKey) {
+    throw new Error('WeatherAPI requiere API key (WEATHERAPI_KEY env variable)');
+  }
+
+  // WeatherAPI permite geocoding + clima en una sola llamada
+  const query = `${localidad}, ${pais}`;
+  const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(query)}&aqi=no`;
+
+  try {
+    const response = await axios.get(url);
+    const data = response.data;
+
+    // WeatherAPI devuelve todo en una respuesta
+    return {
+      ubicacion: {
+        name: data.location.name,
+        country: data.location.country || pais,
+        latitude: data.location.lat,
+        longitude: data.location.lon,
+        timezone: data.location.tz_id,
+      },
+      temperatura: data.current.temp_c,
+      humedad: data.current.humidity,
+      weatherData: {
+        condition: data.current.condition.text,
+        wind_kph: data.current.wind_kph,
+        pressure_mb: data.current.pressure_mb,
+        feelslike_c: data.current.feelslike_c,
+      },
+      timestamp: new Date(),
+    };
+  } catch (error) {
+    if (error.response?.status === 400) {
+      // Location not found
+      const err = new Error(`No se encontró la ubicación "${localidad}" en "${pais}"`);
+      err.isNotFound = true;
+      err.extra = {
+        suggestion: "Intenta con el nombre de una ciudad específica",
+      };
+      throw err;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Adaptador para OpenWeatherMap (gratis, requiere API key)
+ * https://openweathermap.org/api
+ * 1000 llamadas/día gratis
+ */
+async function fetchFromOpenWeatherMap(pais, localidad) {
+  const apiKey = WEATHER_PROVIDERS.openweathermap.apiKey;
+  
+  if (!apiKey) {
+    throw new Error('OpenWeatherMap requiere API key (OPENWEATHERMAP_KEY env variable)');
+  }
+
+  // Paso 1: Geocoding
+  const geoUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(localidad)},${encodeURIComponent(pais)}&limit=5&appid=${apiKey}`;
+  
+  try {
+    const geoResponse = await axios.get(geoUrl);
+    const locations = geoResponse.data;
+
+    if (!locations || locations.length === 0) {
+      const error = new Error(`No se encontró la ubicación "${localidad}" en "${pais}"`);
+      error.isNotFound = true;
+      error.extra = {
+        suggestion: "Intenta con el nombre de una ciudad específica",
+      };
+      throw error;
+    }
+
+    if (locations.length > 1) {
+      const error = new Error("Se encontraron múltiples ubicaciones. Por favor, especifica cuál deseas.");
+      error.isMultipleLocations = true;
+      error.data = {
+        multipleLocations: true,
+        total: locations.length,
+        options: locations.map((loc) => ({
+          name: loc.name,
+          country: loc.country || "",
+          admin1: loc.state || "",
+          latitude: loc.lat,
+          longitude: loc.lon,
+        })),
+      };
+      throw error;
+    }
+
+    const location = locations[0];
+
+    // Paso 2: Obtener clima actual
+    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=metric`;
+    const weatherResponse = await axios.get(weatherUrl);
+    const weather = weatherResponse.data;
+
+    return {
+      ubicacion: {
+        name: location.name,
+        country: location.country || pais,
+        latitude: location.lat,
+        longitude: location.lon,
+        timezone: weather.timezone ? `UTC${weather.timezone/3600}` : 'UTC',
+      },
+      temperatura: weather.main.temp,
+      humedad: weather.main.humidity,
+      weatherData: {
+        description: weather.weather[0]?.description,
+        feels_like: weather.main.feels_like,
+        pressure: weather.main.pressure,
+        wind_speed: weather.wind.speed,
+      },
+      timestamp: new Date(),
+    };
+  } catch (error) {
+    if (error.isNotFound || error.isMultipleLocations) {
+      throw error;
+    }
+    throw new Error(`Error consultando OpenWeatherMap: ${error.message}`);
+  }
 }
 
 module.exports = {
