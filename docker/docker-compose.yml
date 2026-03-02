@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  smd-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: social-media-downloader-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Application settings
+      LOG_LEVEL: INFO
+      DOWNLOAD_DIR: /tmp/downloads
+      MAX_FILE_SIZE: 500  # MB
+      FILE_RETENTION_HOURS: 1  # Hours to keep downloaded files
+      CLEANUP_INTERVAL: 3600  # Seconds between cleanup runs
+      
+      # Performance settings
+      WORKERS: 2
+    
+    volumes:
+      # Persistent download directory (optional, for debugging)
+      - ./downloads:/tmp/downloads
+      
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Network
+    networks:
+      - smd-network
+
+networks:
+  smd-network:
+    driver: bridge
