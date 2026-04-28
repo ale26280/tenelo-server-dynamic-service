@@ -142,16 +142,6 @@ const startServer = () => {
       console.log(`⏰ Zona horaria: ${CONFIG.timezone}`);
       console.log(`📦 Límite de body: ${CONFIG.bodyLimit}`);
       console.log(`🔌 Socket.IO: Activo en path /api/v1/sk`);
-
-      // Iniciar cron de expiración de planes cambiar a mantenimiento
-      /*
-      try {
-        const planesCron = require('./app/cron/planes.cron');
-        planesCron.start();
-      } catch (err) {
-        console.error('⚠️ Error al iniciar cron de planes:', err.message);
-      }
-        */
     });
   });
 };
