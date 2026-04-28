@@ -1,43 +1,23 @@
-# Multi-stage build for optimized image size
-FROM python:3.10-slim as builder
+# ============================================
+# Dockerfile - Tenelo Dynamic Service
+# ============================================
+FROM node:20-slim
 
-# Set working directory
+RUN groupadd -g 1001 appgroup \
+    && useradd -u 1001 -g appgroup -s /usr/sbin/nologin --no-create-home appuser
+
 WORKDIR /app
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    python3-dev \
-    && rm -rf /var/lib/apt/lists/*
+COPY package.json package-lock.json* ./
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --user --no-cache-dir -r requirements.txt
+COPY --chown=appuser:appgroup . .
 
-# Final stage
-FROM python:3.10-slim
+USER appuser
 
-# Set metadata
-LABEL maintainer="Tenelo Development Team"
-LABEL description="Social Media Downloader API Service"
-LABEL version="1.0.0"
+EXPOSE 44104
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    DOWNLOAD_DIR=/tmp/downloads \
-    MAX_FILE_SIZE=500 \
-    CLEANUP_INTERVAL=3600 \
-    LOG_LEVEL=INFO
-
-# Create non-root user for security
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+CMD ["node", "server.js"]
 
 # Set working directory
 WORKDIR /app

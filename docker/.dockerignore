@@ -3,21 +3,19 @@
 .gitignore
 .gitattributes
 
-# Python
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-*.egg
-*.egg-info
-dist
-build
-.eggs
-parts
-bin
-var
+# Node
+node_modules
+npm-debug.log*
+
+# Docker
+docker/
+
+# Env
+.env
+
+# Logs
+logs/
+*.log
 sdist
 develop-eggs
 .installed.cfg
