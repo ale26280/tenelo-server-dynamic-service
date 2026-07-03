@@ -1,0 +1,72 @@
+[
+  {
+    "id": 501,
+    "modo": "colectivos",
+    "linea": "152",
+    "descripcion": "Retiro - La Boca",
+    "ubicacion": "Av. Corrientes y Callao",
+    "estado": "En viaje",
+    "proximaLlegada": 4,
+    "destacado": true
+  },
+  {
+    "id": 502,
+    "modo": "colectivos",
+    "linea": "60",
+    "descripcion": "Constitución - Tigre",
+    "ubicacion": "Av. Cabildo y Juramento",
+    "estado": "En viaje",
+    "proximaLlegada": 9,
+    "destacado": false
+  },
+  {
+    "id": 503,
+    "modo": "subtes",
+    "linea": "Línea A",
+    "descripcion": "Plaza de Mayo - San Pedrito",
+    "ubicacion": "Estación Congreso",
+    "estado": "En estación",
+    "proximaLlegada": 2,
+    "destacado": true
+  },
+  {
+    "id": 504,
+    "modo": "subtes",
+    "linea": "Línea D",
+    "descripcion": "Catedral - Congreso de Tucumán",
+    "ubicacion": "Estación 9 de Julio",
+    "estado": "En viaje",
+    "proximaLlegada": 6,
+    "destacado": false
+  },
+  {
+    "id": 505,
+    "modo": "ecobici",
+    "linea": null,
+    "descripcion": "Estación 34 - Plaza Italia",
+    "ubicacion": "Av. Santa Fe y Sarmiento",
+    "estado": "Disponible",
+    "bicisDisponibles": 12,
+    "anclajesDisponibles": 8,
+    "destacado": true
+  },
+  {
+    "id": 506,
+    "modo": "trenes",
+    "linea": "Mitre",
+    "descripcion": "Retiro - Tigre",
+    "ubicacion": "Estación Belgrano R",
+    "estado": "No disponible",
+    "proximaLlegada": null,
+    "destacado": false
+  },
+  {
+    "id": 507,
+    "modo": "transito",
+    "linea": null,
+    "descripcion": "Corte por manifestación",
+    "ubicacion": "Av. 9 de Julio y Av. de Mayo",
+    "estado": "No disponible",
+    "destacado": false
+  }
+]

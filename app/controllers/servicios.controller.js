@@ -15,6 +15,8 @@ const path = require('path');
  * - restaurantes: Menú y promociones
  * - eventos: Próximos eventos y actividades
  * - productos: Catálogo de productos
+ * - transporte: Colectivos, subtes, ecobici, trenes y tránsito (ejemplo estático;
+ *   datos en vivo en GET /transporte y GET /transporte/:modo)
  */
 
 /**
@@ -30,13 +32,14 @@ const getServicio = async (req, res) => {
                 error: 'Tipo de servicio no especificado',
                 tiposDisponibles: [
                     'test',
-                    'propiedades', 
+                    'propiedades',
                     'gimnasio',
                     'estacionamientos',
                     'autos',
                     'restaurantes',
                     'eventos',
-                    'productos'
+                    'productos',
+                    'transporte'
                 ]
             });
         }
@@ -50,13 +53,14 @@ const getServicio = async (req, res) => {
                 error: `Servicio '${tipo}' no encontrado`,
                 tiposDisponibles: [
                     'test',
-                    'propiedades', 
+                    'propiedades',
                     'gimnasio',
                     'estacionamientos',
                     'autos',
                     'restaurantes',
                     'eventos',
-                    'productos'
+                    'productos',
+                    'transporte'
                 ]
             });
         }

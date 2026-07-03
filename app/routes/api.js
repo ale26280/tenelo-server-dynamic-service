@@ -4,6 +4,7 @@ const router = express.Router();
 const ServiciosController = require("../controllers/servicios.controller");
 const ExternosController = require('../controllers/externos.controller');
 const ScraperController = require('../controllers/scraper.controller');
+const TransporteController = require('../controllers/transporte.controller');
 
 
 ///////////////// TEST //////////////////////////
@@ -25,6 +26,13 @@ router.get("/servicios/:tipo", ServiciosController.getServicio);
 router.post('/extras/clima', ExternosController.getClima)
 
 //procesados - obtiene datos procesados de una colección específica (ej: propiedades, autos, etc)
+
+///////////////// TRANSPORTE (GCBA) //////////////////////////
+
+// Lista modos disponibles (colectivos, subtes, trenes, ecobici, transito) y su estado
+router.get('/transporte', TransporteController.getModos);
+// Último snapshot guardado en Mongo para un modo específico
+router.get('/transporte/:modo', TransporteController.getModo);
 
 ///////////////// SCRAPER (BETA) //////////////////////////
 

@@ -17,6 +17,7 @@ const moment = require("moment-timezone");
 // Rutas y base de datos
 const api = require("./app/routes/api");
 const initDb = require("./config/db").initDb;
+const transporteCron = require("./app/cron/transporte.cron");
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -25,7 +26,7 @@ const CONFIG = {
   base_url: process.env.BASE_URL || "http://localhost",
   port: process.env.SERVER_PORT || 3000,
   prefix: "/ds/v1",
-  timezone: "America/Buenos_Aires",
+  timezone: "America/Argentina/Buenos_Aires",
   bodyLimit: "50mb",
 };
 
@@ -142,6 +143,9 @@ const startServer = () => {
       console.log(`⏰ Zona horaria: ${CONFIG.timezone}`);
       console.log(`📦 Límite de body: ${CONFIG.bodyLimit}`);
       console.log(`🔌 Socket.IO: Activo en path /api/v1/sk`);
+
+      // Cron de transporte público (requiere DB ya conectada)
+      transporteCron.start();
     });
   });
 };
