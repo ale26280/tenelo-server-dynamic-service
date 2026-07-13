@@ -5,6 +5,7 @@ const ServiciosController = require("../controllers/servicios.controller");
 const ExternosController = require('../controllers/externos.controller');
 const ScraperController = require('../controllers/scraper.controller');
 const TransporteController = require('../controllers/transporte.controller');
+const metrics = require('../metrics/metrics');
 
 
 ///////////////// TEST //////////////////////////
@@ -43,5 +44,7 @@ router.post('/scraper/media', ScraperController.getMedia);
 // Obtiene información completa (título, precio, descripción, etc) de una plataforma
 router.post('/scraper/info', ScraperController.getInfo);
 
+// Prometheus metrics endpoint
+router.get('/metrics', metrics.metricsEndpoint);
 
 module.exports = router;
