@@ -17,7 +17,9 @@ const moment = require("moment-timezone");
 // Rutas y base de datos
 const api = require("./app/routes/api");
 const initDb = require("./config/db").initDb;
-const transporteCron = require("./app/cron/transporte.cron");
+// Cron de transporte: se movió a cron-worker.js (proceso/contenedor separado,
+// server-dynamic-service-cron) para poder escalar este servicio a N réplicas
+// sin duplicar su ejecución.
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -144,8 +146,6 @@ const startServer = () => {
       console.log(`📦 Límite de body: ${CONFIG.bodyLimit}`);
       console.log(`🔌 Socket.IO: Activo en path /api/v1/sk`);
 
-      // Cron de transporte público (requiere DB ya conectada)
-      transporteCron.start();
     });
   });
 };
