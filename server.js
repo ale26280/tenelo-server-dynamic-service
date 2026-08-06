@@ -16,6 +16,7 @@ const moment = require("moment-timezone");
 
 // Rutas y base de datos
 const api = require("./app/routes/api");
+const metrics = require("./app/metrics/metrics");
 const initDb = require("./config/db").initDb;
 // Cron de transporte: se movió a cron-worker.js (proceso/contenedor separado,
 // server-dynamic-service-cron) para poder escalar este servicio a N réplicas
@@ -38,6 +39,31 @@ process.env.TZ = CONFIG.timezone;
 // Configuración de variables globales
 const app = express();
 const path_uploads = process.env.PATH_UPLOADS;
+
+// ── Sonda interna: liveness + métricas ──────────────────────────────────────
+// Van montadas en la RAÍZ y antes de todo middleware, las dos cosas a propósito:
+//
+//  · En la raíz porque Traefik solo enruta el prefijo público de este servicio
+//    (PathPrefix `/ds`). Lo que cuelga de la raíz no tiene router en el edge y
+//    por lo tanto no es alcanzable desde internet. Es exactamente el error que
+//    arrastra /ds/v1/metrics: está montado dentro de app/routes/api.js, heredó
+//    el prefijo enrutado y quedó público (responde 200 desde afuera).
+//
+//  · Antes de compression/cors/helmet/parsers/morgan para que la sonda no
+//    dependa de que ninguno de ellos esté sano, y para que el chequeo cada 30s
+//    no ensucie el log.
+//
+// healthz NO toca Mongo: responde "el proceso atiende HTTP" y nada más. Si
+// respondiera por la base, una caída de Mongo reiniciaría los servicios en
+// cadena. El chequeo de dependencias va aparte, en /internal/readyz.
+//
+// OJO con el split de procesos: esto cubre las réplicas HTTP. El cron-worker
+// (server-dynamic-service-cron) corre `node cron-worker.js` sin Express, así
+// que no tiene sonda HTTP posible.
+app.get("/internal/healthz", (req, res) => {
+  res.type("text/plain").status(200).send("ok");
+});
+app.get("/internal/metrics", metrics.metricsEndpoint);
 
 // ==============================
 //  MIDDLEWARES DE SEGURIDAD Y RENDIMIENTO

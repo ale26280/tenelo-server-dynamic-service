@@ -10,7 +10,7 @@ Cada plataforma tiene su propio scraper independiente:
 app/scrapers/
 ├── mercadolibre.scraper.js  ✅ Activo (API pública)
 ├── shopify.scraper.js       ✅ Activo (endpoint público)
-├── tiktok.scraper.js        ⏳ Pendiente
+├── tiktok.scraper.js        ✅ Activo (yt-dlp — requiere el binario en la imagen)
 ├── instagram.scraper.js     ⏳ Pendiente
 └── tiendamia.scraper.js     ⏳ Pendiente
 ```
@@ -67,6 +67,17 @@ curl -X POST http://localhost:3000/ds/v1/scraper/info \
     "platform": "shopify",
     "username": "tienda.myshopify.com",
     "limit": 15
+  }'
+```
+
+### TikTok
+```bash
+curl -X POST http://localhost:3000/ds/v1/scraper/media \
+  -H "Content-Type: application/json" \
+  -d '{
+    "platform": "tiktok",
+    "username": "@tiktok",
+    "limit": 10
   }'
 ```
 
@@ -134,7 +145,19 @@ const SCRAPERS = {
 
 - **Mercado Libre**: Usa API pública oficial. Requiere seller_id válido.
 - **Shopify**: Usa endpoint público `/products.json`. Funciona con la mayoría de tiendas.
-- **TikTok/Instagram**: Requieren APIs de terceros o scraping avanzado (pendiente).
+- **TikTok**: Lista los videos públicos de un usuario vía `yt-dlp`.
+  - **Requiere el binario `yt-dlp` en la imagen del servicio** (o `YTDLP_BIN`
+    apuntando a su ruta). Sin él, el endpoint responde con un error explícito.
+  - Acepta `usuario`, `@usuario` o la URL del perfil.
+  - Devuelve la **URL de la página** del video, no un mp4. El archivo directo
+    está en un CDN con URL firmada y de vida corta: para reproducirlo en un
+    canal hay que descargarlo y servirlo desde el media server propio.
+  - Variables: `TIKTOK_SCRAPER_TIMEOUT_MS` (90s), `TIKTOK_SCRAPER_CACHE_MS` (6h),
+    `TIKTOK_SCRAPER_MAX_LIMIT` (50).
+  - Cada llamada sin caché levanta un proceso yt-dlp y pega contra TikTok desde
+    la IP del servidor: conviene no exponer este endpoint sin autenticación.
+- **Instagram**: Pendiente. yt-dlp **no** sirve acá — listar un perfil falla sin
+  sesión iniciada. Requiere API oficial de Meta (app review) o API de terceros.
 
 ## 🔐 Rate Limiting
 

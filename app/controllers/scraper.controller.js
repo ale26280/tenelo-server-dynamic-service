@@ -25,6 +25,11 @@ const SCRAPERS = {
     'tiendamia': tiendamiaScraper
 };
 
+// Plataformas con scraper implementado. El resto sigue siendo un placeholder
+// que responde con un error explicativo.
+// tiktok depende del binario yt-dlp en la imagen (ver tiktok.scraper.js).
+const PLATAFORMAS_ACTIVAS = ['mercadolibre', 'shopify', 'tiktok'];
+
 /**
  * GET /scraper/platforms
  * Lista las plataformas disponibles y su estado
@@ -37,7 +42,7 @@ const getPlatforms = async (req, res) => {
                 media: `/ds/v1/scraper/media`,
                 info: `/ds/v1/scraper/info`
             },
-            status: ['mercadolibre', 'shopify'].includes(key) ? 'active' : 'pending'
+            status: PLATAFORMAS_ACTIVAS.includes(key) ? 'active' : 'pending'
         }));
 
         return res.status(200).send({
