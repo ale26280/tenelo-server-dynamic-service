@@ -1,4 +1,7 @@
-const axios = require('axios');
+// Scraping de un sitio de terceros: va por `httpExterno` para no mandarle
+// credenciales nuestras heredadas de los defaults del axios global.
+// Ver utils/httpExterno.js.
+const axios = require('../utils/httpExterno');
 
 /**
  * Scraper para Mercado Libre

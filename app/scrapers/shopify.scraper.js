@@ -1,4 +1,7 @@
-const axios = require('axios');
+// Scraping de sitios de terceros: va por `httpExterno` para no mandarles
+// credenciales nuestras heredadas de los defaults del axios global.
+// Ver utils/httpExterno.js.
+const axios = require('../utils/httpExterno');
 
 /**
  * Scraper para tiendas Shopify

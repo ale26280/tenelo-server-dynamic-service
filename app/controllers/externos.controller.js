@@ -1,7 +1,11 @@
 // Importaciones necesarias
 const ObjectId = require("mongodb").ObjectId;
 const getDb = require("../../config/db").getDb;
-const axios = require("axios");
+// Salidas a terceros (geocoding, clima, URLs arbitrarias): van por
+// `httpExterno`, que no hereda los defaults del axios global. Ver el porqué en
+// utils/httpExterno.js — resumen: el token del usuario se estaba yendo a estos
+// destinos.
+const axios = require("../utils/httpExterno");
 
 // Respuesta base reutilizable (inmutable)
 const baseResponse = {
