@@ -1,4 +1,6 @@
-const axios = require('axios');
+// API de terceros: va por `httpExterno` para no heredar credenciales nuestras
+// desde los defaults del axios global. Ver utils/httpExterno.js.
+const axios = require('../utils/httpExterno');
 
 /**
  * Cliente de la API Transporte Público (GCBA)
