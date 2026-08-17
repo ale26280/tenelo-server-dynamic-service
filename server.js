@@ -18,6 +18,10 @@ const moment = require("moment-timezone");
 const api = require("./app/routes/api");
 const metrics = require("./app/metrics/metrics");
 const initDb = require("./config/db").initDb;
+// Registro de errores en `gb.apps_error`, que es lo que lee el tablero de
+// /adm/gb/errores. Hasta ahora este server no registraba nada en ninguna
+// colección: sus fallas vivían sólo en el log del contenedor.
+const { logError } = require("./app/utils/logError");
 // Cron de transporte: se movió a cron-worker.js (proceso/contenedor separado,
 // server-dynamic-service-cron) para poder escalar este servicio a N réplicas
 // sin duplicar su ejecución.
@@ -126,6 +130,19 @@ app.use((error, req, res, next) => {
 
   console.error(`[${timestamp}] Error:`, error.message);
   console.error("Stack:", error.stack);
+
+  // Todo lo que llega acá ya es un 500: este handler no atiende 404 ni
+  // validaciones, así que no hace falta filtrar por tipo — lo que cae es
+  // inesperado por definición.
+  //
+  // Sin await: la respuesta al cliente no espera la escritura, y logError nunca
+  // tira.
+  logError({
+    servicio: "server-dynamic-service",
+    origen: `errorHandler ${req.method} ${req.path || ""}`.trim(),
+    error,
+    data: { url: req.originalUrl, method: req.method },
+  });
 
   res.status(500).json({
     error: "Error interno del servidor",
