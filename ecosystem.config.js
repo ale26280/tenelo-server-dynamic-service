@@ -9,8 +9,6 @@ module.exports = {
         'MONGO_HOST': '192.168.0.5',
         'MONGO_PORT': '27998',
         'SERVER_PORT': 6010,
-          // Verifica el usertoken que firma auth. DEV local: en prod es aleatorio.
-          'AUTH_JWT_SECRET': 'userdata',
         'AUTH_URL': 'https://tenelo.ddns.net/auth/v1/auth/access-token',
         'AUTH_API': "https://tenelo.ddns.net/auth/v1/",
         'PL': "gb",
