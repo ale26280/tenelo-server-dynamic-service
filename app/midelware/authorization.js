@@ -3,7 +3,18 @@ var axios = require('axios')
 //midelware
 const authUrl = process.env.AUTH_URL
 const pl = process.env.PL
-const jwtSecret = process.env.AUTH_JWT_SECRET || 'userdata'
+
+// ── SIN SECRETO, NO SE ARRANCA ──────────────────────────────────────────────
+//
+// Antes esto caía a un literal escrito acá mismo. El 29/8/2026 se comprobó que
+// producción estaba usando EXACTAMENTE ese literal: el secreto de firma era
+// público, cualquiera con el repo podía emitir un token válido. Un fallback no
+// protege de un deploy sin la variable — la disfraza, y el sistema arranca
+// inseguro sin decir nada.
+//
+// Ahora falta la variable y el proceso no levanta. Ruidoso a propósito.
+const jwtSecret = process.env.AUTH_JWT_SECRET
+if (!jwtSecret) throw new Error('Falta AUTH_JWT_SECRET: no se puede verificar el usertoken que devuelve auth')
 
 // Ver el mismo comentario en tenelo-server-app: sin timeout, un auth colgado
 // dejaba el request esperando para siempre.
