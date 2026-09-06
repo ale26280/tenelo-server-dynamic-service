@@ -4,7 +4,11 @@ set -eu
 
 # Defaults (can be overridden via .env on the compose or env_file)
 APP_METRICS_TARGET_HOST=${APP_METRICS_TARGET_HOST:-host.docker.internal:44300}
-APP_METRICS_TARGET_PATH=${APP_METRICS_TARGET_PATH:-/api/v1/metrics}
+# `/internal/metrics` y no `/api/v1/metrics`: esa ruta se borro el 6/9/2026.
+# Colgaba del prefijo que Traefik enruta y quedaba publica; el registro vive
+# en la raiz de server.js. Este script arma el scrape del monitoreo LOCAL de
+# desarrollo, asi que con el default viejo generaba una config rota.
+APP_METRICS_TARGET_PATH=${APP_METRICS_TARGET_PATH:-/internal/metrics}
 APP_METRICS_SCHEME=${APP_METRICS_SCHEME:-http}
 APP_METRICS_SCRAPE_INTERVAL=${APP_METRICS_SCRAPE_INTERVAL:-15s}
 APP_METRICS_SCRAPE_TIMEOUT=${APP_METRICS_SCRAPE_TIMEOUT:-10s}
