@@ -5,7 +5,6 @@ const ServiciosController = require("../controllers/servicios.controller");
 const ExternosController = require('../controllers/externos.controller');
 const ScraperController = require('../controllers/scraper.controller');
 const TransporteController = require('../controllers/transporte.controller');
-const metrics = require('../metrics/metrics');
 
 
 ///////////////// TEST //////////////////////////
@@ -45,6 +44,20 @@ router.post('/scraper/media', ScraperController.getMedia);
 router.post('/scraper/info', ScraperController.getInfo);
 
 // Prometheus metrics endpoint
-router.get('/metrics', metrics.metricsEndpoint);
+// ── Métricas de Prometheus: la ruta NO se monta acá, y no es un olvido ──────
+//
+// Este router cuelga del prefijo que Traefik enruta, así que montar el endpoint
+// acá adentro lo deja PÚBLICO — que es exactamente lo que pasó durante meses.
+// El registro de `prom-client` se expone en `/internal/metrics`, en la RAÍZ de
+// `server.js`: lo que cuelga de la raíz no tiene router en el edge y no es
+// alcanzable desde internet.
+//
+// Verificado el 6/9/2026 contra la config viva de Prometheus: los 6 jobs de las
+// apps de tenelo scrapean `/internal/metrics`. Ninguno usaba esta ruta, así que
+// borrarla no apagó nada. (Los otros 11 jobs son exportadores de terceros con su
+// `/metrics` propio por default: no son excepciones a normalizar, son otra cosa.)
+//
+// Si vuelve a aparecer la necesidad de exponerla, la respuesta casi siempre es
+// mover el scrape a `/internal/metrics`, no remontarla acá.
 
 module.exports = router;

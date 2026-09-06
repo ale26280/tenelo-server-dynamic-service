@@ -107,9 +107,10 @@ app.get("/version", (req, res) => {
   });
 });
 
-// Expose Prometheus metrics endpoint (configurable via env)
-// Prioridad de variables: APP_METRICS_PATH, APP_METRICS_TARGET_PATH, default '/api/v1/metrics'
-// metrics route is mounted in app/routes/api.js so it respects the API prefix
+// El endpoint de Prometheus se expone SOLO en `/internal/metrics`, montado mas
+// arriba en la raiz. La ruta gemela que colgaba del router de la API se borro el
+// 6/9/2026: heredaba el prefijo que Traefik enruta y quedaba publica. El porque
+// completo esta en el comentario de `routes/api.js`, donde estaba montada.
 
 // ============================================================================
 // RUTAS DE LA API
