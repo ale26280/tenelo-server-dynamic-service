@@ -13,7 +13,18 @@ const sseWriteFailures = new client.Counter({ name: 'sse_write_failures_total', 
 const sseKeepaliveSent = new client.Counter({ name: 'sse_keepalive_sent_total', help: 'Total SSE keepalive pings sent', labelNames: ['canal'] });
 
 // Redis connectivity
-const redisConnected = new client.Gauge({ name: 'redis_connected', help: 'Redis connection state (1=connected,0=disconnected)' });
+// `redis_connected` se saco de aca a proposito, NO por olvido: este servicio no
+// usa Redis (cero `require` de ioredis/redis/bullmq, cero usos de REDIS_URL).
+// La gauge se definia y no se seteaba nunca, asi que exportaba un 0 permanente
+// —"Redis desconectado"— que era falso: no hay Redis que conectar. Ese 0 hacia
+// que una alerta `min(redis_connected) == 0` sin filtro por servicio quedara
+// disparada para siempre, y ese fue justamente el falso positivo que aparecio
+// al escribir las reglas del visualizador.
+//
+// Una metrica que no significa nada es peor que ninguna: ocupa lugar y da
+// sensacion de cobertura. Si algun dia este servicio usa Redis, se agrega junto
+// con el seteo, nunca antes. El patron correcto esta en server-app,
+// `vigilarConexion`: `ready` -> 1, `close` -> 0.
 const redisPublishFailures = new client.Counter({ name: 'redis_publish_failures_total', help: 'Redis publish failures' });
 
 // Migration and presence events
@@ -43,7 +54,6 @@ module.exports = {
   incWriteFail: (canal) => { try { sseWriteFailures.labels(canal || 'unknown').inc(); } catch (e) {} },
   incKeepalive: (canal) => { try { sseKeepaliveSent.labels(canal || 'unknown').inc(); } catch (e) {} },
   // Redis
-  setRedisConnected: (val) => { try { redisConnected.set(val ? 1 : 0); } catch (e) {} },
   incRedisPublishFail: () => { try { redisPublishFailures.inc(); } catch (e) {} }
   ,
   // migration helpers
