@@ -5,6 +5,7 @@ const ServiciosController = require("../controllers/servicios.controller");
 const ExternosController = require('../controllers/externos.controller');
 const ScraperController = require('../controllers/scraper.controller');
 const TransporteController = require('../controllers/transporte.controller');
+const TurneroController = require('../controllers/turnero.controller');
 
 
 ///////////////// TEST //////////////////////////
@@ -33,6 +34,23 @@ router.post('/extras/clima', ExternosController.getClima)
 router.get('/transporte', TransporteController.getModos);
 // Último snapshot guardado en Mongo para un modo específico
 router.get('/transporte/:modo', TransporteController.getModo);
+
+///////////////// TURNERO SIMULADO //////////////////////////
+
+// Un servicio que CAMBIA SOLO, para poder probar que un elemento dinámico
+// refresca — cosa que con los JSON estáticos de /servicios no se puede ver.
+//
+// El estado es función del reloj, no azar por pedido: el tiempo se parte en
+// ventanas de `cada` segundos y dentro de una ventana la respuesta es siempre la
+// misma. Así "cambió" significa "pasó una ventana", que es lo que se quiere
+// probar, y no "se volvió a pedir".
+//
+//   /turnero                        ventanas de 30s, 6 boxes
+//   /turnero?cada=15&boxes=8        más rápido y más filas
+//
+// Devuelve un ARRAY EN LA RAÍZ con objetos planos, que es lo único que el mapeo
+// de elementos dinámicos sabe leer.
+router.get('/turnero', TurneroController.getTurnero);
 
 ///////////////// SCRAPER (BETA) //////////////////////////
 
