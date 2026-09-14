@@ -6,6 +6,8 @@ const ExternosController = require('../controllers/externos.controller');
 const ScraperController = require('../controllers/scraper.controller');
 const TransporteController = require('../controllers/transporte.controller');
 const TurneroController = require('../controllers/turnero.controller');
+const EmisorController = require('../controllers/emisor.controller');
+const au = require('../midelware/authorization');
 
 
 ///////////////// TEST //////////////////////////
@@ -51,6 +53,16 @@ router.get('/transporte/:modo', TransporteController.getModo);
 // Devuelve un ARRAY EN LA RAÍZ con objetos planos, que es lo único que el mapeo
 // de elementos dinámicos sabe leer.
 router.get('/turnero', TurneroController.getTurnero);
+
+// ── EMISOR DE PRUEBAS ─────────────────────────────────────────────────────
+// El "sistema del cliente" simulado: hace POST a un webhook de tenelo N veces
+// cada M segundos, con el turnero (función del reloj) o un servicio de
+// ejemplo. Lo pide server-app (`POST /webhooks/:id/probar`) reenviando la
+// sesión del usuario, por eso va con ensureAuth y no con un secreto nuevo.
+// Sólo envía a hosts permitidos (EMISOR_DESTINOS). Ver emisor.controller.js.
+router.post('/emisor', au.ensureAuth, EmisorController.iniciar);
+router.get('/emisor/:id', au.ensureAuth, EmisorController.estado);
+router.delete('/emisor/:id', au.ensureAuth, EmisorController.cancelar);
 
 ///////////////// SCRAPER (BETA) //////////////////////////
 

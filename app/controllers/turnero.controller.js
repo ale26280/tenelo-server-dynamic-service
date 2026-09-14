@@ -85,44 +85,61 @@ function numero(valor, porDefecto, min, max) {
  * siempre idéntica; al pasar a la siguiente cambian los turnos, los estados y
  * las esperas.
  */
+/**
+ * Las filas del turnero para una ventana dada. Es la función que comparten el
+ * GET (la fuente que se LEE) y el emisor de pruebas (la fuente que ENVÍA):
+ * misma ventana, mismas filas, sea cual sea el camino. Pura a propósito.
+ */
+function filasDeTurnero(ventana, { cada = 30, boxes = 6, prefijo = 'A' } = {}) {
+  const rnd = generador(ventana);
+
+  // El contador de turnos avanza con las ventanas en vez de ser aleatorio: un
+  // turnero que retrocede se nota a simple vista y haría dudar del refresco en
+  // vez de demostrarlo.
+  const base = ventana % 900;
+
+  const filas = [];
+  for (let i = 0; i < boxes; i += 1) {
+    const estado = ESTADOS[entre(rnd, 0, ESTADOS.length - 1)];
+    const libre = estado === 'Libre';
+    const numeroTurno = base + i + 1;
+
+    filas.push({
+      // Nombres pensados para que el mapeo del panel se lea solo. Todos planos
+      // y todos de tipo simple: un objeto acá se mostraría como "[object Object]".
+      turno: libre ? '—' : `${prefijo}-${String(numeroTurno).padStart(3, '0')}`,
+      box: `Box ${i + 1}`,
+      estado,
+      sector: SECTORES[entre(rnd, 0, SECTORES.length - 1)],
+      espera: libre ? '—' : `${entre(rnd, 1, 25)} min`,
+      enCola: entre(rnd, 0, 40),
+      // Una marca legible para poder ver EN PANTALLA cuándo se renovó, sin
+      // mirar logs: es la forma más directa de comprobar que un elemento fijo
+      // volvió a consultar.
+      actualizado: new Date(ventana * cada * 1000).toISOString(),
+    });
+  }
+  return filas;
+}
+
+/** Normaliza los parámetros del turnero, vengan de la query o de un JSON. */
+function parametrosDeTurnero(q = {}) {
+  return {
+    cada: numero(q.cada, 30, 5, 3600),
+    boxes: numero(q.boxes, 6, 1, 50),
+    prefijo: String(q.prefijo || 'A').slice(0, 3).toUpperCase(),
+  };
+}
+
 const getTurnero = async (req, res) => {
   try {
-    const cada = numero(req.query.cada, 30, 5, 3600);
-    const boxes = numero(req.query.boxes, 6, 1, 50);
-    const prefijo = String(req.query.prefijo || 'A').slice(0, 3).toUpperCase();
+    const { cada, boxes, prefijo } = parametrosDeTurnero(req.query);
 
     // El número de ventana es lo único que siembra todo. Dos pedidos dentro del
     // mismo intervalo comparten semilla y por lo tanto respuesta.
     const ahora = Date.now();
     const ventana = Math.floor(ahora / (cada * 1000));
-    const rnd = generador(ventana);
-
-    // El contador de turnos avanza con las ventanas en vez de ser aleatorio: un
-    // turnero que retrocede se nota a simple vista y haría dudar del refresco en
-    // vez de demostrarlo.
-    const base = ventana % 900;
-
-    const filas = [];
-    for (let i = 0; i < boxes; i += 1) {
-      const estado = ESTADOS[entre(rnd, 0, ESTADOS.length - 1)];
-      const libre = estado === 'Libre';
-      const numeroTurno = base + i + 1;
-
-      filas.push({
-        // Nombres pensados para que el mapeo del panel se lea solo. Todos planos
-        // y todos de tipo simple: un objeto acá se mostraría como "[object Object]".
-        turno: libre ? '—' : `${prefijo}-${String(numeroTurno).padStart(3, '0')}`,
-        box: `Box ${i + 1}`,
-        estado,
-        sector: SECTORES[entre(rnd, 0, SECTORES.length - 1)],
-        espera: libre ? '—' : `${entre(rnd, 1, 25)} min`,
-        enCola: entre(rnd, 0, 40),
-        // Una marca legible para poder ver EN PANTALLA cuándo se renovó, sin
-        // mirar logs: es la forma más directa de comprobar que un elemento fijo
-        // volvió a consultar.
-        actualizado: new Date(ventana * cada * 1000).toISOString(),
-      });
-    }
+    const filas = filasDeTurnero(ventana, { cada, boxes, prefijo });
 
     // El contexto va en cabeceras y no en el cuerpo: metido adentro obligaría a
     // envolver el array en un objeto, y ahí el mapeo pasa a ver una sola fila.
@@ -145,4 +162,4 @@ const getTurnero = async (req, res) => {
   }
 };
 
-module.exports = { getTurnero };
+module.exports = { getTurnero, filasDeTurnero, parametrosDeTurnero };
