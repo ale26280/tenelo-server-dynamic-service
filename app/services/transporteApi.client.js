@@ -60,6 +60,14 @@ function getSubtesForecast() {
   return request('/subtes/forecastGTFS');
 }
 
+// Subtes: alertas de servicio por línea (GTFS-realtime ServiceAlerts en JSON).
+// Es lo que alimenta la fuente pública `subte`: "¿la línea anda?". Verificado
+// el 16/9/2026 con las credenciales reales: 200, `entity[].alert` con
+// `informed_entity[].route_id` = LineaA…LineaH / PM1 y `effect` numérico.
+function getSubtesServiceAlerts() {
+  return request('/subtes/serviceAlerts', { json: 1 });
+}
+
 // Trenes: posiciones en tiempo real de las formaciones
 // Devuelve 404 con las credenciales actuales - producto no suscripto/no
 // habilitado del lado de GCBA. Ver nota en el header del archivo.
@@ -83,6 +91,7 @@ module.exports = {
   isConfigured,
   getColectivosPositions,
   getSubtesForecast,
+  getSubtesServiceAlerts,
   getTrenesPositions,
   getEcobiciStations,
   getTransitoEventos,
