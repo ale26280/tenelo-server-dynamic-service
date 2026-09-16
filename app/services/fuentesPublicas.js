@@ -177,7 +177,61 @@ const subte = {
   },
 };
 
-const FUENTES = { dolar, subte };
+// ── Fútbol ───────────────────────────────────────────────────────────────────
+// API-Football (api-sports.io). Tabla de posiciones de una liga. Clave y
+// temporada por entorno: el plan Free (100 req/día) NO da la temporada en
+// curso (verificado 16/9/2026: "try from 2022 to 2024"), así que sin plan Pro
+// esto es una demo con datos reales de 2024. TTL 1 h → ≤ 24 pedidos/día por
+// réplica, lejos del cupo. Sin clave, la fuente no existe en el catálogo.
+const FUTBOL_LIGA = Number(process.env.APIFOOTBALL_LEAGUE || 128); // Liga Profesional Argentina
+const FUTBOL_TEMPORADA = Number(process.env.APIFOOTBALL_SEASON || 2024);
+
+const futbol = {
+  id: 'futbol',
+  nombre: 'Tabla de posiciones — Liga Profesional Argentina',
+  descripcion: `Una fila por equipo: posición, puntos, partidos jugados, diferencia de gol, racha y escudo (media). Temporada ${FUTBOL_TEMPORADA}.`,
+  ttlMs: 60 * 60 * 1000,
+  periodicidadSugeridaSegundos: 3600,
+  campos: ['titulo', 'descripcion', 'precio', 'extra', 'media', 'posicion', 'puntos', 'jugados', 'ganados', 'empatados', 'perdidos', 'diferencia', 'racha'],
+  origen: { nombre: 'API-Football', url: 'https://www.api-football.com', terminos: 'Plan Free: 100 req/día, sin temporada en curso; Pro para la actual' },
+  disponible: () => !!process.env.APIFOOTBALL_KEY,
+  async traer() {
+    if (!process.env.APIFOOTBALL_KEY) throw new Error('Fútbol sin clave (APIFOOTBALL_KEY)');
+    const { data } = await axios.get('https://v3.football.api-sports.io/standings', {
+      params: { league: FUTBOL_LIGA, season: FUTBOL_TEMPORADA },
+      headers: { 'x-apisports-key': process.env.APIFOOTBALL_KEY },
+      timeout: 10000,
+    });
+    const errores = data && data.errors && !Array.isArray(data.errors) ? Object.values(data.errors) : [];
+    if (errores.length) throw new Error(`API-Football: ${errores.join(' · ')}`);
+    const grupos = data?.response?.[0]?.league?.standings || [];
+    const tabla = grupos.flat();
+    if (!tabla.length) throw new Error('API-Football no devolvió la tabla');
+    return tabla.map((t) => ({
+      titulo: `${t.rank}. ${t.team?.name || ''}`,
+      descripcion: `${t.all?.played ?? 0} PJ · ${t.all?.win ?? 0} G · ${t.all?.draw ?? 0} E · ${t.all?.lose ?? 0} P · DG ${t.goalsDiff > 0 ? '+' : ''}${t.goalsDiff ?? 0}`,
+      precio: `${t.points ?? 0} pts`,
+      // W/D/L del proveedor → G/E/P, que es como se lee acá.
+      extra: t.form ? `Últimos: ${String(t.form).replace(/W/g, 'G').replace(/D/g, 'E').replace(/L/g, 'P').split('').join(' ')}` : '',
+      media: t.team?.logo || '',
+      posicion: t.rank,
+      puntos: t.points,
+      jugados: t.all?.played,
+      ganados: t.all?.win,
+      empatados: t.all?.draw,
+      perdidos: t.all?.lose,
+      diferencia: t.goalsDiff,
+      racha: t.form || '',
+      grupo: t.group || '',
+    }));
+  },
+};
+
+// Sólo entran al catálogo las fuentes que tienen lo que necesitan (clave).
+const TODAS = { dolar, subte, futbol };
+const FUENTES = Object.fromEntries(
+  Object.entries(TODAS).filter(([, f]) => typeof f.disponible !== 'function' || f.disponible()),
+);
 
 /** Catálogo, para el panel y la documentación. */
 function catalogo(base) {
