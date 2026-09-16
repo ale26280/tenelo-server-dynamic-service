@@ -29,7 +29,7 @@ const CACHE_DURATION_MS = 30 * 60 * 1000; // 30 minutos
 const WEATHER_PROVIDERS = {
   weatherapi: {
     name: 'WeatherAPI',
-    enabled: !!process.env.WEATHERAPI_KEY || true, // Habilitado siempre, requiere API key
+    enabled: !!process.env.WEATHERAPI_KEY, // Sólo con clave: sin ella fallaba en cada pedido antes de caer a Open-Meteo
     priority: 1, // 🌟 PROVIDER PRINCIPAL
     requiresApiKey: true,
     apiKey: process.env.WEATHERAPI_KEY,
@@ -85,6 +85,21 @@ function preview(obj, maxChars = 2000) {
   }
 }
 
+/** Coordenadas válidas del cuerpo, o null si no vienen o no sirven. */
+function leerCoordenadas(body = {}) {
+  const latitude = Number(body.latitude);
+  const longitude = Number(body.longitude);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  if (Math.abs(latitude) > 90 || Math.abs(longitude) > 180) return null;
+  return {
+    latitude,
+    longitude,
+    timezone: typeof body.timezone === "string" && body.timezone ? body.timezone : null,
+    name: typeof body.name === "string" ? body.name : "",
+    country: typeof body.country === "string" ? body.country : "",
+  };
+}
+
 /**
  * Obtiene información del clima para una ubicación específica
  * Implementa cache inteligente para evitar consultas repetitivas
@@ -98,6 +113,16 @@ async function getClima(req, res, next) {
     response.error = [];
 
     const { pais, localidad } = req.body;
+
+    // ── Coordenadas (16/9/2026) ─────────────────────────────────────────
+    // El panel guarda la ubicación elegida CON latitude/longitude/timezone
+    // (`climaConfig.ubicacion`), pero los clientes pedían el clima sólo por
+    // nombre: este endpoint volvía a geocodificar, "Buenos Aires" daba cuatro
+    // resultados, la respuesta era `multipleLocations` sin temperatura y el
+    // visualizador mostraba su placeholder (25 °C) para siempre. Con
+    // coordenadas no hay geocoding ni ambigüedad; la búsqueda por nombre queda
+    // para el buscador del panel, que es quien necesita elegir entre opciones.
+    const coords = leerCoordenadas(req.body);
     console.log("🌤️ [CLIMA] Parámetros recibidos:", { pais, localidad });
 
     // Obtener provider preferido (opcional, si no se especifica usa fallback automático)
@@ -107,10 +132,10 @@ async function getClima(req, res, next) {
     }
 
     // Validar parámetros requeridos
-    if (!pais || !localidad) {
+    if (!coords && (!pais || !localidad)) {
       console.log("❌ [CLIMA DEBUG] Parámetros faltantes");
       response.status = 400;
-      response.message = "Los parámetros pais y localidad son requeridos";
+      response.message = "Se necesitan latitude y longitude, o pais y localidad";
       return res.status(400).json(response);
     }
 
@@ -118,7 +143,10 @@ async function getClima(req, res, next) {
     const collection = db.collection("apps_climas");
 
     // Crear clave única para la ubicación
-    const locationKey = `${pais.toLowerCase()}_${localidad.toLowerCase()}`;
+    // Por coordenadas (~1 km) cuando las hay: dos ciudades homónimas no comparten caché.
+    const locationKey = coords
+      ? `geo_${coords.latitude.toFixed(2)}_${coords.longitude.toFixed(2)}`
+      : `${pais.toLowerCase()}_${localidad.toLowerCase()}`;
     
     // Normalizar fechas a UTC para evitar problemas de zona horaria
     const nowUTC = new Date();
@@ -228,7 +256,7 @@ async function getClima(req, res, next) {
     // Crear promesa para compartir con requests concurrentes
     const fetchPromise = (async () => {
       try {
-        return await fetchWeatherData(pais, localidad, locationKey, preferredProvider);
+        return await fetchWeatherData(pais, localidad, locationKey, preferredProvider, coords);
       } finally {
         // Limpiar el lock después de completar (éxito o error)
         pendingRequests.delete(locationKey);
@@ -380,7 +408,7 @@ async function getClima(req, res, next) {
  * @param {string} locationKey - Clave única de ubicación
  * @param {string|null} preferredProvider - Provider preferido (opcional)
  */
-async function fetchWeatherData(pais, localidad, locationKey, preferredProvider = null) {
+async function fetchWeatherData(pais, localidad, locationKey, preferredProvider = null, coords = null) {
   const enabledProviders = getEnabledProviders();
   
   // Si se especifica un provider preferido y está habilitado, intentar primero con ese
@@ -404,10 +432,10 @@ async function fetchWeatherData(pais, localidad, locationKey, preferredProvider 
       let result;
       switch (provider) {
         case 'openmeteo':
-          result = await fetchFromOpenMeteo(pais, localidad);
+          result = await fetchFromOpenMeteo(pais, localidad, coords);
           break;
         case 'weatherapi':
-          result = await fetchFromWeatherAPI(pais, localidad);
+          result = await fetchFromWeatherAPI(pais, localidad, coords);
           break;
         case 'openweathermap':
           result = await fetchFromOpenWeatherMap(pais, localidad);
@@ -444,7 +472,16 @@ async function fetchWeatherData(pais, localidad, locationKey, preferredProvider 
 /**
  * Adaptador para Open-Meteo (gratis, sin API key)
  */
-async function fetchFromOpenMeteo(pais, localidad) {
+async function fetchFromOpenMeteo(pais, localidad, coords = null) {
+  if (coords) {
+    return climaOpenMeteoEnPunto({
+      name: localidad || coords.name || "",
+      country: pais || coords.country || "",
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      timezone: coords.timezone || null,
+    });
+  }
   // Buscar coordenadas usando la API de geocoding con múltiples estrategias
     const searchQueries = [
       `${localidad}, ${pais}`, // Estrategia principal: "Chubut, Argentina"
@@ -537,38 +574,40 @@ async function fetchFromOpenMeteo(pais, localidad) {
       searchQuery: usedQuery,
     });
 
-  // Consultar el clima actual
-  // Request temperature and relative humidity
-  const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&hourly=temperature_2m,relativehumidity_2m&timezone=${location.timezone}&forecast_days=1`;
+  return climaOpenMeteoEnPunto({
+    name: location.name,
+    country: location.country || "",
+    latitude: location.latitude,
+    longitude: location.longitude,
+    timezone: location.timezone,
+  });
+}
 
-  const weatherResponse = await axios.get(weatherUrl);
-  const weatherData = weatherResponse.data;
-
-  // Obtener la temperatura y humedad actuales (primera hora disponible)
-  const currentTemperature = weatherData.hourly?.temperature_2m?.[0];
-  const currentHumidity = weatherData.hourly?.relativehumidity_2m?.[0];
-
-  if (currentTemperature === undefined) {
-    console.log("❌ [CLIMA DEBUG] No se pudo obtener temperatura actual");
+/**
+ * Clima ACTUAL de un punto por Open-Meteo (`current=`).
+ *
+ * Antes se pedía `hourly=temperature_2m` con `forecast_days=1` y se tomaba
+ * `[0]`: la temperatura de las 00:00 de hoy, no la de ahora (medido el 16/9:
+ * 8,7 °C a la medianoche contra 5,4 °C reales a las 7). `current` es el dato
+ * del momento, interpolado por el propio servicio.
+ */
+async function climaOpenMeteoEnPunto(location) {
+  const tz = location.timezone || "auto";
+  const weatherUrl =
+    `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}` +
+    `&current=temperature_2m,relative_humidity_2m&timezone=${encodeURIComponent(tz)}`;
+  const { data } = await axios.get(weatherUrl);
+  const temperatura = Number(data?.current?.temperature_2m);
+  if (!Number.isFinite(temperatura)) {
     throw new Error("No se pudo obtener la temperatura actual");
   }
-
-  // Retornar datos del clima con timestamp del momento de obtención
+  const humedad = Number(data?.current?.relative_humidity_2m);
   return {
-    ubicacion: {
-      name: location.name,
-      country: location.country || "",
-      latitude: location.latitude,
-      longitude: location.longitude,
-      timezone: location.timezone,
-    },
-    temperatura: currentTemperature,
-    humedad: currentHumidity,
-    weatherData: {
-      hourly: weatherData.hourly,
-      timezone: weatherData.timezone,
-    },
-    timestamp: new Date(), // Momento en que se obtuvieron los datos de la API
+    ubicacion: { ...location, timezone: location.timezone || data?.timezone || tz },
+    temperatura,
+    humedad: Number.isFinite(humedad) ? humedad : null,
+    horaDato: data?.current?.time || null,
+    timestamp: new Date(),
   };
 }
 
@@ -577,15 +616,16 @@ async function fetchFromOpenMeteo(pais, localidad) {
  * https://www.weatherapi.com/
  * 1M llamadas/mes gratis
  */
-async function fetchFromWeatherAPI(pais, localidad) {
+async function fetchFromWeatherAPI(pais, localidad, coords = null) {
   const apiKey = WEATHER_PROVIDERS.weatherapi.apiKey;
   
   if (!apiKey) {
     throw new Error('WeatherAPI requiere API key (WEATHERAPI_KEY env variable)');
   }
 
-  // WeatherAPI permite geocoding + clima en una sola llamada
-  const query = `${localidad}, ${pais}`;
+  // WeatherAPI permite geocoding + clima en una sola llamada; con coordenadas
+  // se le pasa "lat,lon" y no hay ambigüedad de nombre.
+  const query = coords ? `${coords.latitude},${coords.longitude}` : `${localidad}, ${pais}`;
   const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(query)}&aqi=no`;
 
   try {
