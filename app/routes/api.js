@@ -7,6 +7,7 @@ const ScraperController = require('../controllers/scraper.controller');
 const TransporteController = require('../controllers/transporte.controller');
 const TurneroController = require('../controllers/turnero.controller');
 const EmisorController = require('../controllers/emisor.controller');
+const PublicoController = require('../controllers/publico.controller');
 const au = require('../midelware/authorization');
 
 
@@ -36,6 +37,15 @@ router.post('/extras/clima', ExternosController.getClima)
 router.get('/transporte', TransporteController.getModos);
 // Último snapshot guardado en Mongo para un modo específico
 router.get('/transporte/:modo', TransporteController.getModo);
+
+///////////////// FUENTES PÚBLICAS //////////////////////////
+
+// Datos abiertos normalizados como filas planas (array en la raíz), para que
+// una plantilla de la Central de Recursos apunte acá y funcione en cualquier
+// cuenta sin configurar nada: /publico/dolar, /publico/subte. Catálogo en
+// /publico. Ver services/fuentesPublicas.js.
+router.get('/publico', PublicoController.getCatalogo);
+router.get('/publico/:fuente', PublicoController.getFuente);
 
 ///////////////// TURNERO SIMULADO //////////////////////////
 
