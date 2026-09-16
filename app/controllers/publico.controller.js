@@ -33,7 +33,7 @@ async function getFuente(req, res) {
     return res.status(404).json({ error: `Fuente '${fuente}' no existe`, disponibles: Object.keys(FUENTES) });
   }
   try {
-    const r = await leer(fuente);
+    const r = await leer(fuente, req.query || {});
     const ttl = Math.max(5, Math.round(FUENTES[fuente].ttlMs / 1000));
     res.set('Cache-Control', `public, max-age=${Math.min(ttl, 60)}`);
     res.set('X-Fuente-Actualizado', r.actualizado.toISOString());

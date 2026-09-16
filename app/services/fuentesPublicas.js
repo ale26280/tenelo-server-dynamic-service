@@ -227,8 +227,99 @@ const futbol = {
   },
 };
 
+// ── Vuelos ───────────────────────────────────────────────────────────────────
+// AeroDataBox vía RapidAPI. Tablero de un aeropuerto (partidas o arribos) en
+// una ventana de 4 h. El plan Basic tiene ~400 unidades/MES (medido el
+// 16/9/2026: cabecera x-ratelimit-api-units-limit: 400; una consulta de
+// tablero gasta 1-2), así que:
+//   - TTL 4 h y caché COMPARTIDO en Mongo (dos réplicas no pueden gastar el
+//     cupo por separado);
+//   - se consulta sólo cuando alguien pide (una pantalla en AEP no gasta EZE);
+//   - una consulta trae partidas Y arribos y se guardan juntas: el `tipo` se
+//     resuelve al servir, no al pedir.
+// Con eso, un aeropuerto en pantalla 24/7 son ≤ 6 consultas/día ≈ 180-360
+// unidades/mes: entra, sin margen para dos aeropuertos a la vez. Para eso, el
+// plan pago. Sin clave, la fuente no aparece en el catálogo.
+const AEROPUERTOS = {
+  aep: { iata: 'AEP', nombre: 'Aeroparque Jorge Newbery', zona: 'America/Argentina/Buenos_Aires' },
+  eze: { iata: 'EZE', nombre: 'Ezeiza — Ministro Pistarini', zona: 'America/Argentina/Buenos_Aires' },
+};
+const ESTADO_VUELO = {
+  Expected: 'En horario', Unknown: 'Programado', Delayed: 'Demorado', Canceled: 'Cancelado', Cancelled: 'Cancelado',
+  Departed: 'Despegó', Arrived: 'Aterrizó', Boarding: 'Embarcando', GateClosed: 'Puerta cerrada', CheckIn: 'Check-in',
+  EnRoute: 'En vuelo', Approaching: 'Aproximando', Diverted: 'Desviado', Landed: 'Aterrizó',
+};
+const VUELOS_VENTANA_HORAS = 4;
+
+function fechaCorta(iso) {
+  // "2026-09-16 19:15-03:00" → "19:15"
+  const m = String(iso || '').match(/(\d{2}):(\d{2})/);
+  return m ? `${m[1]}:${m[2]}` : '';
+}
+
+function fuenteVuelos(clave) {
+  const a = AEROPUERTOS[clave];
+  return {
+    id: `vuelos-${clave}`,
+    nombre: `Vuelos — ${a.nombre}`,
+    descripcion: `Partidas o arribos de ${a.iata} en las próximas ${VUELOS_VENTANA_HORAS} h (parámetro ?tipo=partidas|arribos, default partidas). Hora programada, destino/origen, aerolínea, vuelo y estado.`,
+    ttlMs: 4 * 60 * 60 * 1000,
+    periodicidadSugeridaSegundos: 900,
+    campos: ['titulo', 'descripcion', 'extra', 'hora', 'vuelo', 'aerolinea', 'ciudad', 'estado', 'tipo'],
+    origen: { nombre: 'AeroDataBox (RapidAPI)', url: 'https://aerodatabox.com', terminos: 'Plan Basic ~400 unidades/mes; caché de 4 h compartido' },
+    disponible: () => !!process.env.AERODATABOX_KEY,
+    cacheCompartido: true,
+    parametros: { tipo: ['partidas', 'arribos'] },
+    async traer() {
+      if (!process.env.AERODATABOX_KEY) throw new Error('Vuelos sin clave (AERODATABOX_KEY)');
+      const desde = new Date(Date.now() - 30 * 60 * 1000);
+      const hasta = new Date(desde.getTime() + VUELOS_VENTANA_HORAS * 60 * 60 * 1000);
+      const f = (d) => d.toISOString().slice(0, 16);
+      const url = `https://aerodatabox.p.rapidapi.com/flights/airports/iata/${a.iata}/${f(desde)}/${f(hasta)}`;
+      const { data } = await axios.get(url, {
+        params: { withLeg: false, direction: 'Both', withCancelled: true, withCodeshared: false, withCargo: false, withPrivate: false, withLocation: false },
+        headers: { 'x-rapidapi-host': 'aerodatabox.p.rapidapi.com', 'x-rapidapi-key': process.env.AERODATABOX_KEY },
+        timeout: 15000,
+      });
+      const fila = (v, tipo) => {
+        const mov = v.movement || {};
+        const hora = fechaCorta(mov.revisedTime?.local || mov.scheduledTime?.local);
+        const ciudad = mov.airport?.name || '';
+        const estado = ESTADO_VUELO[v.status] || v.status || 'Programado';
+        return {
+          titulo: `${hora}  ${ciudad}`,
+          descripcion: `${v.airline?.name || ''} ${v.number || ''}`.trim(),
+          extra: estado,
+          hora,
+          vuelo: v.number || '',
+          aerolinea: v.airline?.name || '',
+          ciudad,
+          estado,
+          tipo,
+          programado: mov.scheduledTime?.utc || '',
+          // Se ordena por la hora REVISADA (la que se muestra): un vuelo
+          // demorado tres horas va donde va a salir, no donde iba a salir.
+          orden: mov.revisedTime?.utc || mov.scheduledTime?.utc || '',
+        };
+      };
+      const ordenar = (xs) => xs.sort((x, y) => String(x.orden).localeCompare(String(y.orden)));
+      return {
+        partidas: ordenar((data.departures || []).map((v) => fila(v, 'partidas'))),
+        arribos: ordenar((data.arrivals || []).map((v) => fila(v, 'arribos'))),
+      };
+    },
+    // De lo guardado (las dos listas) a las filas que pide este pedido.
+    servir(guardado, query = {}) {
+      const tipo = query.tipo === 'arribos' ? 'arribos' : 'partidas';
+      const lista = (guardado && guardado[tipo]) || [];
+      const max = Math.max(1, Math.min(40, Number(query.max) || 14));
+      return lista.slice(0, max);
+    },
+  };
+}
+
 // Sólo entran al catálogo las fuentes que tienen lo que necesitan (clave).
-const TODAS = { dolar, subte, futbol };
+const TODAS = { dolar, subte, futbol, 'vuelos-aep': fuenteVuelos('aep'), 'vuelos-eze': fuenteVuelos('eze') };
 const FUENTES = Object.fromEntries(
   Object.entries(TODAS).filter(([, f]) => typeof f.disponible !== 'function' || f.disponible()),
 );
@@ -242,39 +333,79 @@ function catalogo(base) {
     url: `${base}/publico/${f.id}`,
     campos: f.campos,
     periodicidadSugeridaSegundos: f.periodicidadSugeridaSegundos,
+    parametros: f.parametros || null,
     origen: f.origen,
   }));
 }
 
+/** Caché compartido entre réplicas (Mongo), sólo para fuentes con cupo. */
+async function coleccionCache() {
+  try {
+    const { getDb } = require('../../config/db');
+    return getDb().db('tenelo').collection('apps_fuentes_publicas');
+  } catch (e) {
+    return null;
+  }
+}
+
 /**
  * Filas de una fuente, con caché y último-dato-bueno.
+ * `query` son los parámetros del pedido (p. ej. `tipo` en vuelos): NO cambian
+ * lo que se trae de la fuente, sólo lo que se sirve (`servir`), así un mismo
+ * dato guardado responde a todas las variantes sin gastar cupo.
  * Devuelve { filas, actualizado, desdeCache, antiguo, error }.
  */
-async function leer(id) {
+async function leer(id, query = {}) {
   const f = FUENTES[id];
   if (!f) return null;
+  const servir = (guardado) => (typeof f.servir === 'function' ? f.servir(guardado, query) : guardado);
   const ahora = Date.now();
   const c = cache.get(id);
-  if (c && c.vence > ahora) return { filas: c.filas, actualizado: c.actualizado, desdeCache: true, antiguo: false, error: null };
+  if (c && c.vence > ahora) return { filas: servir(c.filas), actualizado: c.actualizado, desdeCache: true, antiguo: false, error: null };
+
+  // Antes de ir a la fuente, lo que otra réplica haya guardado.
+  let compartido = null;
+  if (f.cacheCompartido) {
+    const col = await coleccionCache();
+    if (col) {
+      try {
+        const doc = await col.findOne({ _id: id });
+        if (doc && doc.vence > ahora) {
+          cache.set(id, { filas: doc.filas, actualizado: new Date(doc.actualizado), vence: doc.vence });
+          return { filas: servir(doc.filas), actualizado: new Date(doc.actualizado), desdeCache: true, antiguo: false, error: null };
+        }
+        compartido = { col, doc };
+      } catch (e) {
+        compartido = null;
+      }
+    }
+  }
 
   if (!enCurso.has(id)) {
     enCurso.set(id, (async () => {
       try {
         const filas = await f.traer();
         const actualizado = new Date();
-        cache.set(id, { filas, actualizado, vence: Date.now() + f.ttlMs });
+        const vence = Date.now() + f.ttlMs;
+        cache.set(id, { filas, actualizado, vence });
+        if (compartido?.col) {
+          try { await compartido.col.replaceOne({ _id: id }, { _id: id, filas, actualizado, vence }, { upsert: true }); } catch (e) { /* el caché local alcanza */ }
+        }
         return { filas, actualizado, desdeCache: false, antiguo: false, error: null };
       } catch (e) {
-        // Último dato bueno, declarado como antiguo. Sin dato previo, el error
-        // sube: mejor un 502 que una lista vacía que parece "no hay novedades".
-        if (c) return { filas: c.filas, actualizado: c.actualizado, desdeCache: true, antiguo: true, error: e.message };
+        // Último dato bueno (local o compartido), declarado como antiguo. Sin
+        // dato previo, el error sube: mejor un 502 que una lista vacía que
+        // parece "no hay novedades".
+        const previo = c || (compartido?.doc ? { filas: compartido.doc.filas, actualizado: new Date(compartido.doc.actualizado) } : null);
+        if (previo) return { filas: previo.filas, actualizado: previo.actualizado, desdeCache: true, antiguo: true, error: e.message };
         throw e;
       } finally {
         enCurso.delete(id);
       }
     })());
   }
-  return enCurso.get(id);
+  const r = await enCurso.get(id);
+  return { ...r, filas: servir(r.filas) };
 }
 
 module.exports = { FUENTES, catalogo, leer };
